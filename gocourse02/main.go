@@ -14,6 +14,8 @@ import (
 розмножуватись. Програма має демонструвати свою роботу через вивід в stdout.
 */
 
+const animalNumber = 15 // Кількість звірів які повтікали
+
 type ZooKeeper struct {
 	Name           string
 	NumberOfFound  int
@@ -40,7 +42,8 @@ type Animal struct {
 	Name   string
 	Gender string
 	Weight int
-	Cage   // Так ми розуміємо чи спіймали звіра
+	OurNil *int // Вимога задачі використати nil
+	Cage        // Так ми розуміємо чи спіймали звіра
 }
 
 type Cage struct {
@@ -59,7 +62,7 @@ func (a *Animal) FindEscapedAnimal() bool {
 func (a *Animal) AttemptСatchAnimal(cage *Cage) bool {
 	// TODO: перевірити чи  правильні тут розрахунки
 	if cage.MaxWeight >= a.Weight+cage.CurrentWeight && cage.MaxSeats >= cage.CurrentSeats+1 {
-		cage.CurrentWeight = +a.Weight
+		cage.CurrentWeight += a.Weight
 		a.Cage = *cage
 		return true
 	}
@@ -67,8 +70,15 @@ func (a *Animal) AttemptСatchAnimal(cage *Cage) bool {
 }
 
 // Функція розможноження
-func (a Animal) Reproduction() {
-	//TODO:
+func Reproduction(male, famale *Animal) {
+	fakeData := GetFaker()
+	avgWeight := (male.Weight + famale.Weight) / 2
+	NewAnimals := &Animal{ID: animalNumber + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: avgWeight, Cage: Cage{male.MaxSeats, male.MaxWeight, male.CurrentSeats + 1, male.CurrentWeight + avgWeight}}
+
+	_, err := fmt.Fprintf(os.Stdout, "Replay between %s and %s is complete!! Congratulations to the new animal %v \n", male.Name, famale.Name, *NewAnimals)
+	if err != nil {
+		return
+	}
 }
 
 // Функції рандомної генерації
@@ -90,26 +100,47 @@ func New(zkName string, animNumber int) (*ZooKeeper, *Cage) {
 }
 
 func main() {
-	animalNumber := 15
 	keeper, cage := New("John Wick", animalNumber)
-	fakeData := GetFaker()
 
-	//var cagedAnimals []Animal
+	//Нічого іншого не вигадав. Перевести структуру Animal в "type Animal []struct" ломає функцію keeper.Begin -  не  зміг вирулити(  Буду вдячний за підказку!
+	var cagedAnimals []Animal
 
 	for i := 0; i < animalNumber; i++ {
+		fakeData := GetFaker()
 		animals := &Animal{ID: i + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: RandInt(10, 50)}
 		keeper.Begin(animals, cage)
-		//if animals.Cage.MaxSeats > 0 {
-		//
-		//	cagedAnimals = append(cagedAnimals, *animals)
-		//}
+		if animals.Cage.MaxSeats > 0 {
+			cagedAnimals = append(cagedAnimals, *animals)
+		}
 	}
 
-	_, err := fmt.Fprintf(os.Stdout, "Zookeeper found %d and cought %d animals Out of %d", keeper.NumberOfFound, keeper.NumberOfCaught, animalNumber)
+	_, err := fmt.Fprintf(os.Stdout, "Zookeeper found %d and cought %d animals Out of %d\n", keeper.NumberOfFound, keeper.NumberOfCaught, animalNumber)
 	if err != nil {
 		return
 	}
 
-	//fmt.Println(cagedAnimals)
-	//TODO: Перевірити які звірі опинились в клітці. Чи можуть ввони розмножуватись?
+	//for reproduction:
+	var male, famale = -1, -1
+	for i, v := range cagedAnimals {
+		switch v.Gender {
+		case "male":
+			if male == -1 {
+				male = i
+			}
+		case "female":
+			if famale == -1 {
+				famale = i
+			}
+		}
+		fmt.Println(i, v)
+	}
+
+	if male > -1 && famale > -1 {
+		Reproduction(&cagedAnimals[male], &cagedAnimals[famale])
+	} else {
+		_, err := fmt.Fprintf(os.Stdout, "same-sex reproduction is prohibited")
+		if err != nil {
+			return
+		}
+	}
 }

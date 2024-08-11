@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/brianvoe/gofakeit/v6" // fake data
 )
 
 // Create structs with random injected data
