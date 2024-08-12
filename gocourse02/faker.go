@@ -1,25 +1,19 @@
 package main
 
 import (
-	"github.com/brianvoe/gofakeit/v6" // fake data
+	"github.com/brianvoe/gofakeit/v7"
 )
 
-// Create structs with random injected data
 type Fake struct {
 	Str     string
 	Int     int
+	Bool    bool
 	Pointer *int
 	Name    string `fake:"{firstname}"` // Any available function all lowercase
 	Gender  string `fake:"{gender}"`
 }
 
-type Bar struct {
-	Name   string
-	Number int
-	Float  float32
-}
-
-func GetFaker() Fake {
+func NewFake() Fake {
 	var f Fake
 	gofakeit.Struct(&f)
 
