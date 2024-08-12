@@ -1,4 +1,4 @@
-module prjctr-golang_beginning
+module github.com/sarff/prjctr-golang_beginning/gocourse02
 
 go 1.22.5
 

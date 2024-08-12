@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand/v2"
-	"os"
 )
 
 /*
@@ -47,8 +46,6 @@ type Animal struct {
 	Name   string
 	Gender string
 	Weight int
-	OurNil *int // Вимога задачі використати nil
-	//Cage        // Так ми розуміємо чи спіймали звіра
 }
 
 type Cage struct {
@@ -75,21 +72,19 @@ func (k *ZooKeeper) AttemptCatchAnimal(cage *Cage, a *Animal) bool {
 }
 
 // Функція розможноження
-func (male *Animal) Reproduction(famale *Animal) {
+func (male *Animal) Reproduction(female *Animal) {
 	fakeData := NewFake()
-	avgWeight := (male.Weight + famale.Weight) / 2
+	avgWeight := (male.Weight + female.Weight) / 2
 	NewAnimals := &Animal{ID: escapedAnimalsCount + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: avgWeight}
-
-	fmt.Fprintf(os.Stdout, "Replay between %s and %s is complete!! Congratulations to the new animal %v \n", male.Name, famale.Name, *NewAnimals)
-
+	fmt.Printf("Replay between %s and %s is complete!! Congratulations to the new animal %v \n", male.Name, female.Name, *NewAnimals)
 }
 
 func RandInt(minValue, maxValue int) int {
 	return rand.IntN(maxValue-minValue) + minValue
 }
 
-func NewZooKeeper(zkName string) *ZooKeeper {
-	return &ZooKeeper{zkName, 0, 0}
+func NewZooKeeper(name string) *ZooKeeper {
+	return &ZooKeeper{name, 0, 0}
 }
 
 func NewCage(animNumber int) *Cage {
@@ -99,9 +94,9 @@ func NewCage(animNumber int) *Cage {
 	return &Cage{numberSeats, maxWeight, 0, 0, animals}
 }
 
-func NewAnimal(i int) *Animal {
+func NewAnimal(id int) *Animal {
 	fakeData := NewFake()
-	return &Animal{ID: i + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: RandInt(10, 50)}
+	return &Animal{ID: id + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: RandInt(10, 50)}
 }
 
 func main() {
@@ -113,7 +108,7 @@ func main() {
 		keeper.SearchingForAnimalsReturnToCage(keeper, animal, cage)
 	}
 
-	fmt.Fprintf(os.Stdout, "Zookeeper found %d and caught %d animals Out of %d\n", keeper.AnimalsFound, keeper.AnimalsCaught, escapedAnimalsCount)
+	fmt.Printf("Zookeeper found %d and caught %d animals Out of %d\n", keeper.AnimalsFound, keeper.AnimalsCaught, escapedAnimalsCount)
 
 	// for reproduction:
 	var male, famale = -1, -1
