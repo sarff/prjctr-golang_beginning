@@ -14,26 +14,32 @@ import (
 */
 
 const escapedAnimalsCount = 15 // Кількість звірів які повтікали
+//type Gender string
+//
+//const (
+//	male   Gender = "male"
+//	female Gender = "female"
+//)
 
 type ZooKeeper struct {
-	Name           string
-	NumberOfFound  int
-	NumberOfCaught int
+	Name          string
+	AnimalsFound  int
+	AnimalsCaught int
 }
 
-func (k *ZooKeeper) Begin(catch Catcher, cage *Cage) {
+func (k *ZooKeeper) SearchingForAnimalsReturnToCage(catch Catcher, animal *Animal, cage *Cage) {
 	if catch.FindEscapedAnimal() {
-		k.NumberOfFound++
-		if catch.AttemptCatchAnimal(cage) {
-			k.NumberOfCaught++
+		k.AnimalsFound++
+		if catch.AttemptCatchAnimal(cage, animal) {
+			k.AnimalsCaught++
 			cage.CurrentSeats++
 		}
 	}
 }
 
 type Catcher interface {
-	FindEscapedAnimal() bool       // Спроба знайти звіра
-	AttemptCatchAnimal(*Cage) bool // Сброба зловити звіра в клітку
+	FindEscapedAnimal() bool                // Спроба знайти звіра
+	AttemptCatchAnimal(*Cage, *Animal) bool // Сброба зловити звіра в клітку
 }
 
 type Animal struct {
@@ -42,7 +48,7 @@ type Animal struct {
 	Gender string
 	Weight int
 	OurNil *int // Вимога задачі використати nil
-	Cage        // Так ми розуміємо чи спіймали звіра
+	//Cage        // Так ми розуміємо чи спіймали звіра
 }
 
 type Cage struct {
@@ -50,70 +56,68 @@ type Cage struct {
 	MaxWeight     int
 	CurrentSeats  int
 	CurrentWeight int
+	Animal        []Animal
 }
 
 // Шукаємо звіра. Результат = Знаходимо або ні
-func (a *Animal) FindEscapedAnimal() bool {
+func (k *ZooKeeper) FindEscapedAnimal() bool {
 	return rand.N(2) == 1
 }
 
 // Намагаемося зловити в клітку знайденого звіра, якщо в клітці є місця  і не перевищує максимально дозволену вагу
-func (a *Animal) AttemptCatchAnimal(cage *Cage) bool {
-	// TODO: перевірити чи  правильні тут розрахунки
+func (k *ZooKeeper) AttemptCatchAnimal(cage *Cage, a *Animal) bool {
 	if cage.MaxWeight >= a.Weight+cage.CurrentWeight && cage.MaxSeats >= cage.CurrentSeats+1 {
 		cage.CurrentWeight += a.Weight
-		a.Cage = *cage
+		cage.Animal = append(cage.Animal, *a)
 		return true
 	}
 	return false
 }
 
 // Функція розможноження
-func Reproduction(male, famale *Animal) {
+func (male *Animal) Reproduction(famale *Animal) {
 	fakeData := NewFake()
 	avgWeight := (male.Weight + famale.Weight) / 2
-	NewAnimals := &Animal{ID: escapedAnimalsCount + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: avgWeight, Cage: Cage{male.MaxSeats, male.MaxWeight, male.CurrentSeats + 1, male.CurrentWeight + avgWeight}}
+	NewAnimals := &Animal{ID: escapedAnimalsCount + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: avgWeight}
 
-	_, err := fmt.Fprintf(os.Stdout, "Replay between %s and %s is complete!! Congratulations to the new animal %v \n", male.Name, famale.Name, *NewAnimals)
-	if err != nil {
-		return
-	}
+	fmt.Fprintf(os.Stdout, "Replay between %s and %s is complete!! Congratulations to the new animal %v \n", male.Name, famale.Name, *NewAnimals)
+
 }
 
 func RandInt(minValue, maxValue int) int {
 	return rand.IntN(maxValue-minValue) + minValue
 }
 
-// New - функція для створення нових початкових обʼєктів
-func New(zkName string, animNumber int) (*ZooKeeper, *Cage) {
+func NewZooKeeper(zkName string) *ZooKeeper {
+	return &ZooKeeper{zkName, 0, 0}
+}
+
+func NewCage(animNumber int) *Cage {
 	numberSeats := RandInt(1, animNumber+1)    // Дамо звірям шанс
 	maxWeight := numberSeats * RandInt(10, 50) // Максимальная вага одного звіра в зоопарку 50
-	return &ZooKeeper{zkName, 0, 0}, &Cage{numberSeats, maxWeight, 0, 0}
+	animals := make([]Animal, 0)
+	return &Cage{numberSeats, maxWeight, 0, 0, animals}
+}
+
+func NewAnimal(i int) *Animal {
+	fakeData := NewFake()
+	return &Animal{ID: i + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: RandInt(10, 50)}
 }
 
 func main() {
-	keeper, cage := New("John Wick", escapedAnimalsCount)
-
-	//Нічого іншого не вигадав. Перевести структуру Animal в "type Animal []struct" ломає функцію keeper.Begin -  не  зміг вирулити(  Буду вдячний за підказку!
-	var cagedAnimals []Animal
+	keeper := NewZooKeeper("John Wick")
+	cage := NewCage(escapedAnimalsCount)
 
 	for i := 0; i < escapedAnimalsCount; i++ {
-		fakeData := NewFake()
-		animals := &Animal{ID: i + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: RandInt(10, 50)}
-		keeper.Begin(animals, cage)
-		if animals.Cage.MaxSeats > 0 {
-			cagedAnimals = append(cagedAnimals, *animals)
-		}
+		animal := NewAnimal(i)
+		keeper.SearchingForAnimalsReturnToCage(keeper, animal, cage)
 	}
 
-	_, err := fmt.Fprintf(os.Stdout, "Zookeeper found %d and cought %d animals Out of %d\n", keeper.NumberOfFound, keeper.NumberOfCaught, escapedAnimalsCount)
-	if err != nil {
-		return
-	}
+	fmt.Fprintf(os.Stdout, "Zookeeper found %d and caught %d animals Out of %d\n", keeper.AnimalsFound, keeper.AnimalsCaught, escapedAnimalsCount)
 
-	//for reproduction:
+	// for reproduction:
 	var male, famale = -1, -1
-	for i, v := range cagedAnimals {
+	for i, v := range cage.Animal {
 		switch v.Gender {
 		case "male":
 			if male == -1 {
@@ -128,11 +132,8 @@ func main() {
 	}
 
 	if male > -1 && famale > -1 {
-		Reproduction(&cagedAnimals[male], &cagedAnimals[famale])
+		cage.Animal[male].Reproduction(&cage.Animal[famale])
 	} else {
-		_, err := fmt.Fprintf(os.Stdout, "same-sex reproduction is prohibited")
-		if err != nil {
-			return
-		}
+		fmt.Println("same-sex reproduction is prohibited")
 	}
 }
