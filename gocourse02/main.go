@@ -45,6 +45,17 @@ func NewAnimal(id, weight int) *Animal {
 	return &Animal{ID: id + 1, Name: fakeData.Name, Gender: fakeData.Gender, Weight: weight}
 }
 
+func NewZooKeeper(name string) *ZooKeeper {
+	return &ZooKeeper{name, 0, 0}
+}
+
+func NewCage(animNumber int) *Cage {
+	numberSeats := RandInt(1, animNumber+1)    // Дамо звірям шанс
+	maxWeight := numberSeats * RandInt(10, 50) // Максимальная вага одного звіра в зоопарку 50
+	animals := make([]Animal, 0)
+	return &Cage{numberSeats, maxWeight, 0, 0, animals}
+}
+
 func (k *ZooKeeper) SearchingForAnimalsReturnToCage(catch Catcher, animal *Animal, cage *Cage) {
 	if catch.FindEscapedAnimal() {
 		k.AnimalsFound++
@@ -79,17 +90,6 @@ func (male *Animal) Reproduction(female *Animal) {
 
 func RandInt(minValue, maxValue int) int {
 	return rand.IntN(maxValue-minValue) + minValue
-}
-
-func NewZooKeeper(name string) *ZooKeeper {
-	return &ZooKeeper{name, 0, 0}
-}
-
-func NewCage(animNumber int) *Cage {
-	numberSeats := RandInt(1, animNumber+1)    // Дамо звірям шанс
-	maxWeight := numberSeats * RandInt(10, 50) // Максимальная вага одного звіра в зоопарку 50
-	animals := make([]Animal, 0)
-	return &Cage{numberSeats, maxWeight, 0, 0, animals}
 }
 
 func main() {
