@@ -20,11 +20,6 @@ type ZooKeeper struct {
 	AnimalsCaught int
 }
 
-type _ interface {
-	FindEscapedAnimal() bool                // Спроба знайти звіра
-	AttemptCatchAnimal(*Cage, *Animal) bool // Сброба зловити звіра в клітку
-}
-
 type Animal struct {
 	ID     int
 	Name   string
