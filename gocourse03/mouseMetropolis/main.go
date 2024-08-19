@@ -12,9 +12,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/brianvoe/gofakeit/v7"
 	"math/rand/v2"
 	"time"
+
+	"github.com/brianvoe/gofakeit/v7"
 )
 
 type (
@@ -44,11 +45,11 @@ const (
 	rat   RodentType = "rat"
 	mouse RodentType = "mouse"
 
-	sector1 Sector = "sector1"
-	sector2 Sector = "sector2"
-	sector3 Sector = "sector3"
-	sector4 Sector = "sector4"
-	sector5 Sector = "sector5"
+	sectorA Sector = "sectorA"
+	sectorB Sector = "sectorB"
+	sectorC Sector = "sectorC"
+	sectorD Sector = "sectorD"
+	sectorE Sector = "sectorE"
 )
 
 func newRodent(id int) *Rodent {
@@ -60,28 +61,33 @@ func newRodent(id int) *Rodent {
 	return &Rodent{ID: id + 1, Type: typeRodent, History: nil}
 }
 
-func (r *Rodent) addHistory(movement Movement) {
+func (r *Rodent) addMovement(movement Movement) {
 	r.History = append(r.History, movement)
 }
 
-func (m *MiceRoom) delHistory(t time.Time) {
+func (m *MiceRoom) delMovement(t time.Time) bool {
+	delStatus := false
 	for _, rodent := range m.Rodents {
 		for i, m := range rodent.History {
 			if m.Time == t {
-				fmt.Println("time found and successfully deleted: ", m)
 				rodent.History = append(rodent.History[:i], rodent.History[i+1:]...)
+				delStatus = true
 			}
 		}
 	}
+	return delStatus
 }
 
-func (m *MiceRoom) findHistory(ID int) {
+func (m *MiceRoom) findHistory(id int) map[time.Time][]FromTo {
+	history := make(map[time.Time][]FromTo)
 	for _, rodent := range m.Rodents {
-		if rodent.ID == ID {
-			fmt.Println("move history: ", rodent.History)
+		if rodent.ID == id {
+			for _, h := range rodent.History {
+				history[h.Time] = append(history[h.Time], h.FromTo)
+			}
 		}
 	}
-
+	return history
 }
 
 func (r *Rodent) moveRodent(count int) {
@@ -92,33 +98,31 @@ func (r *Rodent) moveRodent(count int) {
 
 	for i := 0; i < count; i++ {
 		if r.History == nil {
-			from = sector1
-			to = returnRandSector(from)
+			from = sectorA
 		} else {
 			from = r.History[len(r.History)-1].FromTo[1]
-			to = returnRandSector(from)
 		}
+		to = randSectorExcluding(from)
 
 		roundTime := time.Now().Add(time.Hour * time.Duration(i)).Truncate(time.Hour)
 		movement := Movement{
-
 			Time: roundTime,
 			FromTo: FromTo{
 				from,
 				to,
 			},
 		}
-		r.addHistory(movement)
+		r.addMovement(movement)
 	}
 }
 
-func returnRandSector(from Sector) Sector {
+func randSectorExcluding(exclude Sector) Sector {
 	fake := gofakeit.New(0)
-	randSector := fake.RandomString([]string{string(sector1), string(sector2), string(sector3), string(sector4)})
-	if Sector(randSector) != from {
+	randSector := fake.RandomString([]string{string(sectorA), string(sectorB), string(sectorC), string(sectorD)})
+	if Sector(randSector) != exclude {
 		return Sector(randSector)
 	}
-	return sector5
+	return sectorE
 }
 
 func (m *MiceRoom) startSector(ID int) Sector {
@@ -140,7 +144,7 @@ func (m *MiceRoom) finishSector(ID int) Sector {
 }
 
 func (m *MiceRoom) returnRodentInSector(time time.Time, targetSector Sector) []int {
-	var report = make([]int, 0)
+	report := make([]int, 0)
 	for _, rodent := range m.Rodents {
 		for _, history := range rodent.History {
 			if history.Time == time && targetSector == history.FromTo[0] {
@@ -159,24 +163,33 @@ func main() {
 		rodent.moveRodent(rand.IntN(10))
 		miceRoom.Rodents = append(miceRoom.Rodents, *rodent)
 	}
-	fmt.Println(miceRoom.Rodents)
-
-	// delete time History by time, for all rodents
-	miceRoom.delHistory(time.Now().Add(time.Hour * time.Duration(1)).Truncate(time.Hour))
 
 	// find history by ID = 4
-	miceRoom.findHistory(4)
+	rodentID := 4
+	history := miceRoom.findHistory(rodentID)
+	fmt.Println("Move history for ID :", rodentID)
+	for k, v := range history {
+		fmt.Printf("%s : %v \n", k, v)
+	}
 
 	// where the rodent was at the beginning of the day and where it stopped at the end of the day
-	fmt.Println("Start Sector:", miceRoom.startSector(4), "|| Finish Sector: ", miceRoom.finishSector(4))
+	fmt.Println("Start and Finish sectors for RodentID:", rodentID)
+	fmt.Println("Start Sector:", miceRoom.startSector(rodentID), "\nFinish Sector: ", miceRoom.finishSector(rodentID))
 
 	// report on the sector at the specified time
 	filterTime := time.Now().Add(time.Hour * time.Duration(2)).Truncate(time.Hour)
-	targetSector := sector1
+	targetSector := sectorA
 	report := miceRoom.returnRodentInSector(filterTime, targetSector)
 	if len(report) > 0 {
-		fmt.Printf("the following rodentsID were in the %s at the time %s: %v", targetSector, filterTime, report)
+		fmt.Printf("The following rodentsID were in the %s at the time %s: %v\n", targetSector, filterTime, report)
 	} else {
-		fmt.Println("there were no rodents in this sector at this time")
+		fmt.Println("There were no rodents in this sector at this time\n")
 	}
+
+	// delete time History by time, for all rodents
+	timeForDel := time.Now().Add(time.Hour * time.Duration(1)).Truncate(time.Hour)
+	if miceRoom.delMovement(timeForDel) {
+		fmt.Printf("All entries with `%s` time are deleted\n", timeForDel)
+	}
+
 }
