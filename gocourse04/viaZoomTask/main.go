@@ -51,7 +51,6 @@ func NewBox() *Box {
 }
 
 func (b *Box) FilterMedicines(medicines map[string]Medicine, today time.Time) {
-
 	sixMonthsAgo := today.AddDate(0, -6, 0)
 	for name, medicine := range medicines {
 		if medicine.Manufactured.After(sixMonthsAgo) {
