@@ -52,12 +52,14 @@ const (
 	sectorE Sector = "sectorE"
 )
 
+// this constructor randomly fills the typeRodent
 func newRodent(id int) *Rodent {
 	typeRodent := mouse
 
 	if rand.N(2) == 1 {
 		typeRodent = rat
 	}
+	// make +1 because the ID cannot be 0
 	return &Rodent{ID: id + 1, Type: typeRodent, History: nil}
 }
 
@@ -167,9 +169,9 @@ func main() {
 	// find history by ID = 4
 	rodentID := 4
 	history := miceRoom.findHistory(rodentID)
-	fmt.Println("Move history for ID :", rodentID)
+	fmt.Printf("Move history for ID %d :\n", rodentID)
 	for k, v := range history {
-		fmt.Printf("%s : %v \n", k, v)
+		fmt.Printf("-->   %s : %v \n", k, v)
 	}
 
 	// where the rodent was at the beginning of the day and where it stopped at the end of the day
