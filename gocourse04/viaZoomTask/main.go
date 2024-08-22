@@ -28,7 +28,7 @@ func main() {
 
 	medicines := map[string]Medicine{
 		"MedicineA": {Name: "MedicineA", Manufactured: time.Date(2023, time.July, 1, 0, 0, 0, 0, time.UTC)},
-		"MedicineB": {Name: "MedicineB", Manufactured: time.Date(2023, time.August, 1, 0, 0, 0, 0, time.UTC)},
+		"MedicineB": {Name: "MedicineB", Manufactured: time.Date(2022, time.August, 1, 0, 0, 0, 0, time.UTC)},
 		"MedicineC": {Name: "MedicineC", Manufactured: time.Date(2023, time.October, 1, 0, 0, 0, 0, time.UTC)},
 	}
 

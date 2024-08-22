@@ -128,48 +128,56 @@ var testsMigrated = map[string]Area{
 	},
 }
 
-var (
-	testZoo      = &Zoo{Areas: tests}
-	testMigrated = &Zoo{Areas: testsMigrated}
-	testCleaning = &Zoo{Areas: testsCleaning}
-	testName     = "Horse1"
-	testToArea   = "tech room"
-	testToSector = 5
-)
-
 func TestLookup(t *testing.T) {
+	var (
+		testZoo  = &Zoo{Areas: tests}
+		testName = "Horse1"
+	)
+
 	_, _, animal := testZoo.Lookup(testName)
 	if animal != nil && animal.Name != testName {
-		t.Errorf("Did not pass the check! Expected: %s Received : %s", testName, animal.Name)
+		t.Errorf(`function returned a different object. We expected an object with the name: %s, 
+						 but we got an object with the name %s`, testName, animal.Name)
 	}
 }
 
 func TestCleaning(t *testing.T) {
+	var (
+		testZoo      = &Zoo{Areas: tests}
+		testCleaning = &Zoo{Areas: testsCleaning}
+		testName     = "Horse1"
+	)
+
 	testAnimalArea, testAnimalSector, testAnimal := testZoo.Lookup(testName)
-	testAnimal.Cleaning(testAnimalArea.Name, testAnimalSector.ID, *testZoo)
-	if !deepEqual(testZoo, testCleaning) {
+	testAnimal.Clean(testAnimalArea.Name, testAnimalSector.ID, *testZoo)
+	if !reflect.DeepEqual(testZoo, testCleaning) {
 		t.Errorf("Output \n%v not equal to expected \n%v", testZoo, testCleaning)
 	}
 }
 
 func TestMigration(t *testing.T) {
+	var (
+		testZoo      = &Zoo{Areas: tests}
+		testMigrated = &Zoo{Areas: testsMigrated}
+		testName     = "Horse1"
+		testToArea   = "tech room"
+		testToSector = 5
+	)
+
 	testAnimalArea, testAnimalSector, testAnimal := testZoo.Lookup(testName)
 	_ = testZoo.Migration(testAnimalArea.Name, testToArea, testAnimalSector.ID, testToSector, *testAnimal)
-	if !deepEqual(testZoo, testMigrated) {
+	if !reflect.DeepEqual(testZoo, testMigrated) {
 		t.Errorf("Output \n%v not equal to expected \n%v", testMigrated, testZoo)
 	}
 }
 
-// DeepEqual reports whether x and y are “deeply equal,”
-func deepEqual(x, y any) bool {
-	if !reflect.DeepEqual(x, y) {
-		return false
-	}
-	return true
-}
-
 func BenchmarkDelAnimal(b *testing.B) {
+	var (
+		testZoo     = &Zoo{Areas: tests}
+		idForDelete int
+	)
+
 	for n := 0; n < b.N; n++ {
-		testZoo.delAnimal(n + 1)
+		testZoo.deleteAnimal(idForDelete)
 	}
 }
