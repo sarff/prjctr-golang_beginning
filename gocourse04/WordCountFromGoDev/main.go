@@ -8,9 +8,9 @@ import (
 )
 
 func WordCount(s string) map[string]int {
-	splitWords := strings.Fields(s)
+	words := strings.Fields(s)
 	m := make(map[string]int)
-	for _, word := range splitWords {
+	for _, word := range words {
 		v, _ := m[word]
 		m[word] = v + 1
 	}

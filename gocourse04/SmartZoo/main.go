@@ -43,8 +43,8 @@ type Zoo struct {
 	Areas Areas
 }
 
-func NewZoo(areasData map[string]Area) *Zoo {
-	return &Zoo{Areas: areasData}
+func NewZoo(areas map[string]Area) *Zoo {
+	return &Zoo{Areas: areas}
 }
 
 var AreasData = map[string]Area{
@@ -121,11 +121,11 @@ func (z *Zoo) Lookup(name string) (*Area, *Sector, *Animal) {
 }
 
 // move the animal to another sector
-func (z *Zoo) Migration(fromAreaName, toArea string, fromSectorID, toSector int, animal Animal) error {
+func (z *Zoo) Migration(fromAreaName, toAreaName string, fromSectorID, toSectorID int, animal Animal) error {
 	for _, area := range z.Areas {
-		if area.Name == toArea {
+		if area.Name == toAreaName {
 			for sectorName, sector := range area.Sectors {
-				if sector.ID == toSector {
+				if sector.ID == toSectorID {
 					sector.Animals = append(sector.Animals, animal)
 					area.Sectors[sectorName] = sector // rewrite sector
 					z.deleteOldRecord(fromAreaName, fromSectorID, animal)
@@ -134,7 +134,7 @@ func (z *Zoo) Migration(fromAreaName, toArea string, fromSectorID, toSector int,
 			}
 		}
 	}
-	return fmt.Errorf("sector not found")
+	return errors.New("sector not found")
 }
 
 func (z *Zoo) deleteOldRecord(fromAreaName string, fromSectorID int, animal Animal) {
@@ -195,9 +195,7 @@ func (z *Zoo) FeedAnimals(fromArea, fromSector string) error {
 		return errors.New("sector in this Area - not found")
 	}
 
-	for _, sector := range val.Animals {
-		diningRoom.Animals = append(diningRoom.Animals, sector)
-	}
+	diningRoom.Animals = append(diningRoom.Animals, val.Animals...)
 	z.Areas["Techroom"].Sectors["Dining room"] = diningRoom // rewrite sector
 	z.Areas[fromArea].Sectors[fromSector] = Sector{}        // emptying the sector from which all the animals have left
 

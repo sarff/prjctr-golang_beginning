@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var tests = map[string]Area{
+var lookupAreas = map[string]Area{
 	"Hoofed": {
 		Name: "hoofed", Sectors: map[string]Sector{
 			"Horses": {
@@ -130,54 +130,53 @@ var testsMigrated = map[string]Area{
 
 func TestLookup(t *testing.T) {
 	var (
-		testZoo  = &Zoo{Areas: tests}
-		testName = "Horse1"
+		Zoo      = &Zoo{Areas: lookupAreas}
+		wantName = "Horse1"
 	)
 
-	_, _, animal := testZoo.Lookup(testName)
-	if animal != nil && animal.Name != testName {
-		t.Errorf(`function returned a different object. We expected an object with the name: %s, 
-						 but we got an object with the name %s`, testName, animal.Name)
+	_, _, animal := Zoo.Lookup(wantName)
+	if animal != nil && animal.Name != wantName {
+		t.Errorf("expected an animal named %s, but got %s", wantName, animal.Name)
 	}
 }
 
-func TestCleaning(t *testing.T) {
+func TestClean(t *testing.T) {
 	var (
-		testZoo      = &Zoo{Areas: tests}
-		testCleaning = &Zoo{Areas: testsCleaning}
-		testName     = "Horse1"
+		testZoo  = &Zoo{Areas: lookupAreas}
+		Cleaning = &Zoo{Areas: testsCleaning}
+		Name     = "Horse1"
 	)
 
-	testAnimalArea, testAnimalSector, testAnimal := testZoo.Lookup(testName)
-	testAnimal.Clean(testAnimalArea.Name, testAnimalSector.ID, *testZoo)
-	if !reflect.DeepEqual(testZoo, testCleaning) {
-		t.Errorf("Output \n%v not equal to expected \n%v", testZoo, testCleaning)
+	AnimalArea, AnimalSector, Animal := testZoo.Lookup(Name)
+	Animal.Clean(AnimalArea.Name, AnimalSector.ID, *testZoo)
+	if !reflect.DeepEqual(testZoo, Cleaning) {
+		t.Errorf("Output \n%v not equal to expected \n%v", testZoo, Cleaning)
 	}
 }
 
 func TestMigration(t *testing.T) {
 	var (
-		testZoo      = &Zoo{Areas: tests}
+		testZoo      = &Zoo{Areas: lookupAreas}
 		testMigrated = &Zoo{Areas: testsMigrated}
-		testName     = "Horse1"
-		testToArea   = "tech room"
-		testToSector = 5
+		Name         = "Horse1"
+		ToArea       = "tech room"
+		ToSector     = 5
 	)
 
-	testAnimalArea, testAnimalSector, testAnimal := testZoo.Lookup(testName)
-	_ = testZoo.Migration(testAnimalArea.Name, testToArea, testAnimalSector.ID, testToSector, *testAnimal)
+	AnimalArea, AnimalSector, Animal := testZoo.Lookup(Name)
+	_ = testZoo.Migration(AnimalArea.Name, ToArea, AnimalSector.ID, ToSector, *Animal)
 	if !reflect.DeepEqual(testZoo, testMigrated) {
 		t.Errorf("Output \n%v not equal to expected \n%v", testMigrated, testZoo)
 	}
 }
 
-func BenchmarkDelAnimal(b *testing.B) {
+func BenchmarkDeleteAnimal(b *testing.B) {
 	var (
-		testZoo     = &Zoo{Areas: tests}
+		Zoo         = &Zoo{Areas: lookupAreas}
 		idForDelete int
 	)
 
 	for n := 0; n < b.N; n++ {
-		testZoo.deleteAnimal(idForDelete)
+		Zoo.deleteAnimal(idForDelete)
 	}
 }
