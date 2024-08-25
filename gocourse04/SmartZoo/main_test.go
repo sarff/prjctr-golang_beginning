@@ -130,11 +130,11 @@ var testsMigrated = map[string]Area{
 
 func TestLookup(t *testing.T) {
 	var (
-		Zoo      = &Zoo{Areas: lookupAreas}
+		zoo      = &Zoo{Areas: lookupAreas}
 		wantName = "Horse1"
 	)
 
-	_, _, animal := Zoo.Lookup(wantName)
+	_, _, animal := zoo.Lookup(wantName)
 	if animal != nil && animal.Name != wantName {
 		t.Errorf("expected an animal named %s, but got %s", wantName, animal.Name)
 	}
@@ -142,41 +142,41 @@ func TestLookup(t *testing.T) {
 
 func TestClean(t *testing.T) {
 	var (
-		testZoo  = &Zoo{Areas: lookupAreas}
-		Cleaning = &Zoo{Areas: testsCleaning}
-		Name     = "Horse1"
+		zoo      = &Zoo{Areas: lookupAreas}
+		cleaning = &Zoo{Areas: testsCleaning}
+		name     = "Horse1"
 	)
 
-	AnimalArea, AnimalSector, Animal := testZoo.Lookup(Name)
-	Animal.Clean(AnimalArea.Name, AnimalSector.ID, *testZoo)
-	if !reflect.DeepEqual(testZoo, Cleaning) {
-		t.Errorf("Output \n%v not equal to expected \n%v", testZoo, Cleaning)
+	AnimalArea, AnimalSector, Animal := zoo.Lookup(name)
+	Animal.Clean(AnimalArea.Name, AnimalSector.ID, *zoo)
+	if !reflect.DeepEqual(zoo, cleaning) {
+		t.Errorf("Output \n%v not equal to expected \n%v", zoo, cleaning)
 	}
 }
 
 func TestMigration(t *testing.T) {
 	var (
-		testZoo      = &Zoo{Areas: lookupAreas}
-		testMigrated = &Zoo{Areas: testsMigrated}
-		Name         = "Horse1"
-		ToArea       = "tech room"
-		ToSector     = 5
+		zoo      = &Zoo{Areas: lookupAreas}
+		migrated = &Zoo{Areas: testsMigrated}
+		name     = "Horse1"
+		toArea   = "tech room"
+		toSector = 5
 	)
 
-	AnimalArea, AnimalSector, Animal := testZoo.Lookup(Name)
-	_ = testZoo.Migration(AnimalArea.Name, ToArea, AnimalSector.ID, ToSector, *Animal)
-	if !reflect.DeepEqual(testZoo, testMigrated) {
-		t.Errorf("Output \n%v not equal to expected \n%v", testMigrated, testZoo)
+	AnimalArea, AnimalSector, Animal := zoo.Lookup(name)
+	_ = zoo.MoveAnimal(AnimalArea.Name, toArea, AnimalSector.ID, toSector, *Animal)
+	if !reflect.DeepEqual(zoo, migrated) {
+		t.Errorf("Output \n%v not equal to expected \n%v", migrated, zoo)
 	}
 }
 
 func BenchmarkDeleteAnimal(b *testing.B) {
 	var (
-		Zoo         = &Zoo{Areas: lookupAreas}
+		zoo         = &Zoo{Areas: lookupAreas}
 		idForDelete int
 	)
 
 	for n := 0; n < b.N; n++ {
-		Zoo.deleteAnimal(idForDelete)
+		zoo.deleteAnimal(idForDelete)
 	}
 }

@@ -18,6 +18,19 @@ import (
 const (
 	areaClean   = "tech room"
 	sectorClean = 6
+
+	toAreaName = "tech room"
+	toSectorID = 5
+
+	fromArea   = "Hoofed"
+	fromSector = "Cows"
+
+	animalNameLookup = "Hawk3"
+
+	deleteAnimalID = 10
+
+	feedArea   = "Techroom"
+	feedSector = "Dining room"
 )
 
 type Areas map[string]Area
@@ -121,7 +134,7 @@ func (z *Zoo) Lookup(name string) (*Area, *Sector, *Animal) {
 }
 
 // move the animal to another sector
-func (z *Zoo) Migration(fromAreaName, toAreaName string, fromSectorID, toSectorID int, animal Animal) error {
+func (z *Zoo) MoveAnimal(fromAreaName, toAreaName string, fromSectorID, toSectorID int, animal Animal) error {
 	for _, area := range z.Areas {
 		if area.Name == toAreaName {
 			for sectorName, sector := range area.Sectors {
@@ -189,15 +202,15 @@ func (a Animal) Clean(fromArea string, sectorID int, z Zoo) {
 
 // the animals go out to eat - Sector: Dining room
 func (z *Zoo) FeedAnimals(fromArea, fromSector string) error {
-	diningRoom := z.Areas["Techroom"].Sectors["Dining room"]
+	diningRoom := z.Areas[feedArea].Sectors[feedSector]
 	val, ok := z.Areas[fromArea].Sectors[fromSector]
 	if !ok {
 		return errors.New("sector in this Area - not found")
 	}
 
 	diningRoom.Animals = append(diningRoom.Animals, val.Animals...)
-	z.Areas["Techroom"].Sectors["Dining room"] = diningRoom // rewrite sector
-	z.Areas[fromArea].Sectors[fromSector] = Sector{}        // emptying the sector from which all the animals have left
+	z.Areas[feedArea].Sectors[feedSector] = diningRoom // rewrite sector
+	z.Areas[fromArea].Sectors[fromSector] = Sector{}   // emptying the sector from which all the animals have left
 
 	return nil
 }
@@ -219,9 +232,7 @@ func (z *Zoo) deleteAnimal(id int) bool {
 
 func main() {
 	zoo := NewZoo(AreasData)
-	zooAreas := zoo.Areas
-	animalName := "Hawk3"
-	animalArea, animalSector, animal := zoo.Lookup(animalName)
+	animalArea, animalSector, animal := zoo.Lookup(animalNameLookup)
 	if animal != nil {
 		fmt.Printf("%s found in animalSector.ID = %v\n", animal.Name, animalSector.ID)
 
@@ -229,25 +240,25 @@ func main() {
 		animal.Clean(animalArea.Name, animalSector.ID, *zoo)
 		fmt.Printf("%s has returned to his sector\n", animal.Name)
 
-		err := zoo.Migration(animalArea.Name, "tech room", animalSector.ID, 5, *animal)
+		err := zoo.MoveAnimal(animalArea.Name, toAreaName, animalSector.ID, toSectorID, *animal)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("The array after the Migration: ", zooAreas)
+		fmt.Println("The map after the MoveAnimal: ", zoo.Areas)
 	} else {
-		fmt.Printf("%s not found\n", animalName)
+		fmt.Printf("%s not found\n", animalNameLookup)
 	}
 
-	err := zoo.FeedAnimals("Hoofed", "Cows")
+	err := zoo.FeedAnimals(fromArea, fromSector)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("The animals are eating")
+		fmt.Printf("The animals are eating from Area %v and from Sector %v\n", fromArea, fromSector)
 	}
 
-	if zoo.deleteAnimal(10) {
-		fmt.Println("Found and successfully deleted")
+	if zoo.deleteAnimal(deleteAnimalID) {
+		fmt.Printf("Found and successfully deleted animal with id=%d\n", deleteAnimalID)
 	}
 
-	fmt.Println("Array after deletion:", zooAreas)
+	fmt.Println("Map after deletion:", zoo.Areas)
 }
