@@ -46,7 +46,7 @@ var lookupAreas = map[string]Area{
 	},
 }
 
-var testsCleaning = map[string]Area{
+var cleanAreas = map[string]Area{
 	"Hoofed": {
 		Name: "hoofed", Sectors: map[string]Sector{
 			"Horses": {
@@ -87,7 +87,7 @@ var testsCleaning = map[string]Area{
 	},
 }
 
-var testsMigrated = map[string]Area{
+var migrateAreas = map[string]Area{
 	"Hoofed": {
 		Name: "hoofed", Sectors: map[string]Sector{
 			"Horses": {
@@ -143,40 +143,51 @@ func TestLookup(t *testing.T) {
 func TestClean(t *testing.T) {
 	var (
 		zoo      = &Zoo{Areas: lookupAreas}
-		cleaning = &Zoo{Areas: testsCleaning}
+		cleaning = &Zoo{Areas: cleanAreas}
 		name     = "Horse1"
 	)
 
-	AnimalArea, AnimalSector, Animal := zoo.Lookup(name)
-	Animal.Clean(AnimalArea.Name, AnimalSector.ID, *zoo)
+	animalArea, animalSector, animal := zoo.Lookup(name)
+	animal.Clean(animalArea.Name, animalSector.ID, *zoo)
 	if !reflect.DeepEqual(zoo, cleaning) {
 		t.Errorf("Output \n%v not equal to expected \n%v", zoo, cleaning)
 	}
 }
 
-func TestMigration(t *testing.T) {
+func TestMoveAnimal(t *testing.T) {
 	var (
 		zoo      = &Zoo{Areas: lookupAreas}
-		migrated = &Zoo{Areas: testsMigrated}
+		migrated = &Zoo{Areas: migrateAreas}
 		name     = "Horse1"
 		toArea   = "tech room"
 		toSector = 5
 	)
 
-	AnimalArea, AnimalSector, Animal := zoo.Lookup(name)
-	_ = zoo.MoveAnimal(AnimalArea.Name, toArea, AnimalSector.ID, toSector, *Animal)
+	animalArea, animalSector, animal := zoo.Lookup(name)
+	_ = zoo.MoveAnimal(animalArea.Name, toArea, animalSector.ID, toSector, *animal)
 	if !reflect.DeepEqual(zoo, migrated) {
 		t.Errorf("Output \n%v not equal to expected \n%v", migrated, zoo)
 	}
 }
 
-func BenchmarkDeleteAnimal(b *testing.B) {
+func BenchmarkLookup(b *testing.B) {
 	var (
-		zoo         = &Zoo{Areas: lookupAreas}
-		idForDelete int
+		zoo  = &Zoo{Areas: lookupAreas}
+		name = "Horse1"
 	)
 
 	for n := 0; n < b.N; n++ {
-		zoo.deleteAnimal(idForDelete)
+		zoo.Lookup(name)
+	}
+}
+
+func BenchmarkClean(b *testing.B) {
+	var (
+		zoo  = &Zoo{Areas: lookupAreas}
+		name = "Horse1"
+	)
+	for n := 0; n < b.N; n++ {
+		animalArea, animalSector, animal := zoo.Lookup(name)
+		animal.Clean(animalArea.Name, animalSector.ID, *zoo)
 	}
 }
