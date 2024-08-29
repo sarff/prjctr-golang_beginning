@@ -111,12 +111,34 @@ func controlCondition(animalChan chan *Animal, wg *sync.WaitGroup) {
 
 }
 
-func controlEnclosure(enclosures Enclosure) {
-	_ = enclosures.IsOpen
+func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup) {
+	defer wg.Done()
+	select {
+	case enclosure, ok := <-enclosureChan:
+		if ok {
+			enclosure.IsOpen = isOpen
+			if isOpen {
+				fmt.Println("Closing the enclosure...")
+				time.Sleep(1 * time.Second)
+			} else {
+				fmt.Println("Opening the enclosure...")
+				time.Sleep(1 * time.Second)
+			}
+		}
+	}
 }
 
-func controlFeeder(feeders Feeder) {
-	_ = feeders.IsEmpty
+func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup) {
+	defer wg.Done()
+	time.Sleep(3 * time.Second) // must be more than 3
+	select {
+	case feed, ok := <-feedChan:
+		if ok {
+			if feed.IsEmpty {
+				fmt.Printf("Needs a refill feeder with ID: %v\n", feed.ID)
+			}
+		}
+	}
 }
 
 func main() {
@@ -133,20 +155,40 @@ func main() {
 	fmt.Println("Feeders:", feeders)
 
 	animalChan := make(chan *Animal)
+	enclosureChan := make(chan *Enclosure)
+	feederChan := make(chan *Feeder)
 
-	for _, animal := range animals {
+	go func() {
+		for _, animal := range animals {
+			wg.Add(1)
+			go controlCondition(animalChan, wg)
+			animalChan <- &animal
+		}
+		wg.Wait()
+	}()
+
+	go func() {
+		for _, enclosure := range enclosures {
+			wg.Add(1)
+			isOpen := true
+			if enclosure.IsOpen {
+				isOpen = false
+			}
+			go controlEnclosure(enclosureChan, isOpen, wg)
+			enclosureChan <- &enclosure
+		}
+		wg.Wait()
+	}()
+
+	for _, feeder := range feeders {
 		wg.Add(1)
-		go controlCondition(animalChan, wg)
-		animalChan <- &animal
+		go controlFeeder(feederChan, wg)
+		feederChan <- &feeder
 	}
 	wg.Wait()
 
-	for _, enclosure := range enclosures {
-		go controlEnclosure(enclosure)
-	}
-
-	for _, feeder := range feeders {
-		go controlFeeder(feeder)
-	}
-
+	fmt.Println("Simulation Done")
 }
+
+//TODO: додати логування
+// - додати тести
