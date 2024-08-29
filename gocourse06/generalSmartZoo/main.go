@@ -24,7 +24,9 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand/v2"
+	"os"
 	"sync"
 	"time"
 )
@@ -90,7 +92,7 @@ func generateFeeders(n int) []Feeder {
 	return feeders
 }
 
-func controlCondition(animalChan chan *Animal, wg *sync.WaitGroup) {
+func controlCondition(animalChan chan *Animal, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	time.Sleep(1 * time.Second)
 
@@ -98,50 +100,56 @@ func controlCondition(animalChan chan *Animal, wg *sync.WaitGroup) {
 	case animal, ok := <-animalChan:
 		if ok {
 			if animal.Health < 50 {
-				fmt.Printf("Animal with ID %v - needs help\n", animal.ID)
+				log.Warn(fmt.Sprintf("Animal with ID %v - needs help", animal.ID))
 			}
 			if animal.Hunger < 30 {
-				fmt.Printf("Animal with ID %v - needs to be fed\n", animal.ID)
+				log.Warn(fmt.Sprintf("Animal with ID %v - needs to be fed", animal.ID))
 			}
 			if animal.Mood < 30 {
-				fmt.Printf("Animal with ID %v - needs to be released from the cage\n", animal.ID)
+				log.Warn(fmt.Sprintf("Animal with ID %v - needs to be released from the cage", animal.ID))
 			}
 		}
 	}
 
 }
 
-func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup) {
+func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	select {
 	case enclosure, ok := <-enclosureChan:
 		if ok {
 			enclosure.IsOpen = isOpen
 			if isOpen {
-				fmt.Println("Closing the enclosure...")
-				time.Sleep(1 * time.Second)
+				log.Info("Closing the enclosure...")
 			} else {
-				fmt.Println("Opening the enclosure...")
-				time.Sleep(1 * time.Second)
+				log.Info("Opening the enclosure...")
 			}
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
 
-func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup) {
+func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	time.Sleep(3 * time.Second) // must be more than 3
 	select {
 	case feed, ok := <-feedChan:
 		if ok {
 			if feed.IsEmpty {
-				fmt.Printf("Needs a refill feeder with ID: %v\n", feed.ID)
+				log.Warn(fmt.Sprintf("Needs a refill feeder with ID: %v", feed.ID))
 			}
 		}
 	}
 }
 
+func loggerNew(writer *os.File) *slog.Logger {
+	logger := slog.New(slog.NewJSONHandler(writer, nil))
+	slog.SetDefault(logger)
+	return logger
+}
+
 func main() {
+	log := loggerNew(os.Stdout)
 	wg := new(sync.WaitGroup)
 
 	// Генеруємо тестові дані
@@ -161,7 +169,7 @@ func main() {
 	go func() {
 		for _, animal := range animals {
 			wg.Add(1)
-			go controlCondition(animalChan, wg)
+			go controlCondition(animalChan, wg, log)
 			animalChan <- &animal
 		}
 		wg.Wait()
@@ -174,7 +182,7 @@ func main() {
 			if enclosure.IsOpen {
 				isOpen = false
 			}
-			go controlEnclosure(enclosureChan, isOpen, wg)
+			go controlEnclosure(enclosureChan, isOpen, wg, log)
 			enclosureChan <- &enclosure
 		}
 		wg.Wait()
@@ -182,13 +190,10 @@ func main() {
 
 	for _, feeder := range feeders {
 		wg.Add(1)
-		go controlFeeder(feederChan, wg)
+		go controlFeeder(feederChan, wg, log)
 		feederChan <- &feeder
 	}
 	wg.Wait()
 
-	fmt.Println("Simulation Done")
+	log.Info("Simulation Done")
 }
-
-//TODO: додати логування
-// - додати тести
