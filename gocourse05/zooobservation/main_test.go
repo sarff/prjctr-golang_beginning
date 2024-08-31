@@ -37,8 +37,8 @@ func TestSaveToServer(t *testing.T) {
 	}
 }
 
-func TestDetectMovement(t *testing.T) {
-	direct := Direction(left)
+func TestDayCamera_DetectMovement(t *testing.T) {
+	direct := left
 	history := &History{}
 
 	tiger := Animal{
@@ -48,6 +48,16 @@ func TestDetectMovement(t *testing.T) {
 		},
 		species: "tiger",
 	}
+
+	err := tiger.cam.DetectMovement(direct, history, tiger.id)
+	if err != nil {
+		t.Errorf("Error saving history to server with DetectMovement() Tiger")
+	}
+}
+
+func TestNightCamera_DetectMovement(t *testing.T) {
+	direct := bottom
+	history := &History{}
 	bear := Animal{
 		id: 2,
 		cam: &NightCamera{
@@ -55,12 +65,26 @@ func TestDetectMovement(t *testing.T) {
 		},
 		species: "bear",
 	}
-	err := tiger.cam.DetectMovement(direct, history, tiger.id)
+	err := bear.cam.DetectMovement(direct, history, bear.id)
 	if err != nil {
-		t.Errorf("Error saving history to server with Tiger")
+		t.Errorf("Error saving history to server with DetectMovement() Bear")
 	}
-	err = bear.cam.DetectMovement(direct, history, bear.id)
+}
+
+func TestAnimal_Move(t *testing.T) {
+	direct := left
+	history := &History{}
+
+	tiger := Animal{
+		id: 1,
+		cam: &DayCamera{
+			screenshot: "day_screenshot.png",
+		},
+		species: "tiger",
+	}
+
+	err := tiger.Move(direct, history)
 	if err != nil {
-		t.Errorf("Error saving history to server with Bear")
+		t.Errorf("Error saving history to server with Move() Tiger")
 	}
 }
