@@ -26,13 +26,15 @@ func TestSaveToServer(t *testing.T) {
 		screenshot: "night_screenshot.png",
 	}
 
-	err = dayCamera.SaveToServer("left", history, 1)
+	err = dayCamera.SaveToServer(history)
 	if err != nil {
 		t.Errorf("Error saving history to server with DayCam")
 	}
 
-	err = nightCamera.SaveToServer("left", history, 1)
+	err = nightCamera.SaveToServer(history)
 	if err != nil {
 		t.Errorf("Error saving history to server with NightCam")
 	}
 }
+
+// TODO: написати тести до всіх функцій

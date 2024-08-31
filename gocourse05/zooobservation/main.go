@@ -34,8 +34,8 @@ type HistoryItem struct {
 type History []HistoryItem
 
 type Camera interface {
-	TakeScreenshot(direction Direction, history *History, animalID int) error
-	SaveToServer(direction Direction, history *History, animalID int) error
+	DetectMovement(direction Direction, history *History, animalID int) error
+	SaveToServer(history *History) error
 }
 
 type DayCamera struct {
@@ -46,31 +46,7 @@ type NightCamera struct {
 	screenshot string
 }
 
-func (d *DayCamera) TakeScreenshot(direction Direction, history *History, animalID int) error {
-	return d.SaveToServer(direction, history, animalID)
-}
-
-func (n *NightCamera) TakeScreenshot(direction Direction, history *History, animalID int) error {
-	return n.SaveToServer(direction, history, animalID)
-
-}
-
-func (d *DayCamera) SaveToServer(direction Direction, history *History, animalID int) error {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("Have a panic while saving to the server %v. Screen: %s\n", err, d.screenshot)
-		}
-	}()
-	*history = append(*history, struct {
-		time      time.Time
-		direction Direction
-		animalID  int
-	}{time: time.Now().UTC(), direction: direction, animalID: animalID})
-
-	return nil
-}
-
-func (n *NightCamera) SaveToServer(direction Direction, history *History, animalID int) error {
+func (d *DayCamera) DetectMovement(direction Direction, history *History, animalID int) error {
 	*history = append(*history, struct {
 		time      time.Time
 		direction Direction
@@ -80,32 +56,40 @@ func (n *NightCamera) SaveToServer(direction Direction, history *History, animal
 		direction: direction,
 		animalID:  animalID,
 	})
-	//enable for test panic in test
-	//var p *string
-	//fmt.Println(*p)
+	return d.SaveToServer(history)
+}
+
+func (n *NightCamera) DetectMovement(direction Direction, history *History, animalID int) error {
+	*history = append(*history, struct {
+		time      time.Time
+		direction Direction
+		animalID  int
+	}{
+		time:      time.Now(),
+		direction: direction,
+		animalID:  animalID,
+	})
+	return n.SaveToServer(history)
+}
+
+func (d *DayCamera) SaveToServer(history *History) error {
+	fmt.Println("DayCamera: History saved:", *history)
 	return nil
 }
 
-type Movement interface {
-	Move(direction Direction)
+func (n *NightCamera) SaveToServer(history *History) error {
+	fmt.Println("NightCamera: History saved:", *history)
+	return nil
 }
 
-type Bear struct {
-	id  int
-	cam NightCamera
+type Animal struct {
+	id      int
+	cam     Camera
+	species string
 }
 
-type Tiger struct {
-	id  int
-	cam DayCamera
-}
-
-func (t *Tiger) Move(direction Direction, history *History) error {
-	return t.cam.TakeScreenshot(direction, history, t.id)
-}
-
-func (b *Bear) Move(direction Direction, history *History) error {
-	return b.cam.TakeScreenshot(direction, history, b.id)
+func (t *Animal) Move(direction Direction, history *History) error {
+	return t.cam.DetectMovement(direction, history, t.id)
 }
 
 func main() {
@@ -115,20 +99,21 @@ func main() {
 	nightCamera := NightCamera{
 		screenshot: "night_screenshot.png",
 	}
-	tiger := Tiger{
-		id:  1,
-		cam: dayCamera,
+	tiger := Animal{
+		id:      1,
+		cam:     &dayCamera,
+		species: "tiger",
 	}
-	bear := Bear{
-		id:  2,
-		cam: nightCamera,
+	bear := Animal{
+		id:      2,
+		cam:     &nightCamera,
+		species: "bear",
 	}
 	history := &History{}
-	err := error(nil)
 
 	direct := [...]Direction{left, right, top, bottom}
 	for i := 0; i < 10; i++ {
-		err = tiger.Move(direct[rand.IntN(len(direct))], history)
+		err := tiger.Move(direct[rand.IntN(len(direct))], history)
 		if err != nil {
 			fmt.Println(err)
 		}

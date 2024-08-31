@@ -1,5 +1,5 @@
 /*
-Треба написати програму для умовної  обробки зображення різного типу, з використанням поліморфізму,
+Треба написати програму для умовної обробки зображення різного типу, з використанням поліморфізму,
 контрактів і panic/recover
 */
 package main
@@ -40,18 +40,18 @@ func (i *BMPImageProcessor) Process() error {
 }
 
 func main() {
-	var bmp = BMPImageProcessor{
+	bmp := BMPImageProcessor{
 		path: "./image/image.bmp",
 	}
-	var png = PNGImageProcessor{
+	png := PNGImageProcessor{
 		path: "./image/image.png",
 	}
 
-	err := error(nil)
 	processors := []ImageProcessor{&bmp, &png}
 	for _, p := range processors {
-		err = p.Process()
+		err := p.Process()
 		if err != nil {
+			fmt.Printf("Error processing image: %s\n", err)
 			return
 		}
 	}
