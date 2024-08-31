@@ -53,91 +53,78 @@ type Feeder struct {
 
 // Генерує тестові дані для тварин
 func generateAnimals(n int) []Animal {
-	var animals []Animal
-	for i := 0; i < n; i++ {
-		animal := Animal{
+	animals := make([]Animal, n)
+	for i := range n {
+		animals[i] = Animal{
 			ID:     i,
 			Health: rand.IntN(100),
 			Hunger: rand.IntN(100),
 			Mood:   rand.IntN(100),
 		}
-		animals = append(animals, animal)
 	}
 	return animals
 }
 
 // Генерує тестові дані для вольєрів
 func generateEnclosures(n int) []Enclosure {
-	var enclosures []Enclosure
-	for i := 0; i < n; i++ {
-		enclosure := Enclosure{
+	enclosures := make([]Enclosure, n)
+	for i := range n {
+		enclosures[i] = Enclosure{
 			ID:     i,
 			IsOpen: rand.IntN(2) == 1,
 		}
-		enclosures = append(enclosures, enclosure)
 	}
 	return enclosures
 }
 
 // Генерує тестові дані для кормушок
 func generateFeeders(n int) []Feeder {
-	var feeders []Feeder
-	for i := 0; i < n; i++ {
-		feeder := Feeder{
+	feeders := make([]Feeder, n)
+	for i := range n {
+		feeders[i] = Feeder{
 			ID:      i,
 			IsEmpty: rand.IntN(2) == 1,
 		}
-		feeders = append(feeders, feeder)
 	}
 	return feeders
 }
 
-func controlCondition(animalChan chan *Animal, wg *sync.WaitGroup, log *slog.Logger) {
+func controlCondition(animalChan <-chan *Animal, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	time.Sleep(1 * time.Second)
 
-	select {
-	case animal, ok := <-animalChan:
-		if ok {
-			if animal.Health < 50 {
-				log.Warn(fmt.Sprintf("Animal with ID %v - needs help", animal.ID))
-			}
-			if animal.Hunger < 30 {
-				log.Warn(fmt.Sprintf("Animal with ID %v - needs to be fed", animal.ID))
-			}
-			if animal.Mood < 30 {
-				log.Warn(fmt.Sprintf("Animal with ID %v - needs to be released from the cage", animal.ID))
-			}
+	if animal, ok := <-animalChan; ok {
+		if animal.Health < 30 {
+			log.Warn("Animal needs help", slog.Int("animalId", animal.ID))
+		}
+		if animal.Hunger < 30 {
+			log.Warn("Animal needs to be fed", slog.Int("animalId", animal.ID))
+		}
+		if animal.Mood < 30 {
+			log.Warn("Animal - needs to be released from the cage", slog.Int("animalId", animal.ID))
 		}
 	}
-
 }
 
 func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
-	select {
-	case enclosure, ok := <-enclosureChan:
-		if ok {
-			enclosure.IsOpen = isOpen
-			if isOpen {
-				log.Info("Closing the enclosure...")
-			} else {
-				log.Info("Opening the enclosure...")
-			}
-			time.Sleep(1 * time.Second)
+	if enclosure, ok := <-enclosureChan; ok {
+		enclosure.IsOpen = isOpen
+		if isOpen {
+			log.Info("Closing the enclosure...")
+		} else {
+			log.Info("Opening the enclosure...")
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
 func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	time.Sleep(3 * time.Second) // must be more than 3
-	select {
-	case feed, ok := <-feedChan:
-		if ok {
-			if feed.IsEmpty {
-				log.Warn(fmt.Sprintf("Needs a refill feeder with ID: %v", feed.ID))
-			}
+	if feed, ok := <-feedChan; ok {
+		if feed.IsEmpty {
+			log.Warn("Needs a refill feeder", slog.Int("feedId", feed.ID))
 		}
 	}
 }
@@ -153,9 +140,9 @@ func main() {
 	wg := new(sync.WaitGroup)
 
 	// Генеруємо тестові дані
-	animals := generateAnimals(10)
+	animals := generateAnimals(5)
 	enclosures := generateEnclosures(5)
-	feeders := generateFeeders(3)
+	feeders := generateFeeders(5)
 
 	// Виводимо згенеровані дані
 	fmt.Println("Animals:", animals)
@@ -165,14 +152,12 @@ func main() {
 	animalChan := make(chan *Animal)
 	enclosureChan := make(chan *Enclosure)
 	feederChan := make(chan *Feeder)
-
 	go func() {
 		for _, animal := range animals {
 			wg.Add(1)
 			go controlCondition(animalChan, wg, log)
 			animalChan <- &animal
 		}
-		wg.Wait()
 	}()
 
 	go func() {
@@ -185,7 +170,6 @@ func main() {
 			go controlEnclosure(enclosureChan, isOpen, wg, log)
 			enclosureChan <- &enclosure
 		}
-		wg.Wait()
 	}()
 
 	for _, feeder := range feeders {

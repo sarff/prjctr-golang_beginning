@@ -18,7 +18,6 @@ type Oxygen struct {
 }
 
 func vessels(lungsChan <-chan *Oxygen, heartChan chan<- *Oxygen) {
-	defer close(heartChan)
 	for {
 		oxygen, ok := <-lungsChan
 		if !ok {
@@ -29,7 +28,6 @@ func vessels(lungsChan <-chan *Oxygen, heartChan chan<- *Oxygen) {
 }
 
 func lungs(lungsChan chan<- *Oxygen) {
-	defer close(lungsChan)
 	for {
 		oxygen := &Oxygen{Amount: rand.IntN(100)}
 		fmt.Println("Lungs received oxygen: ", oxygen.Amount)
@@ -76,5 +74,4 @@ func main() {
 	go heart(heartChan, stopChan)
 
 	<-stopChan
-
 }

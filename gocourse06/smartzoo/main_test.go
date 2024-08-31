@@ -8,11 +8,11 @@ import (
 )
 
 func TestControlCondition(t *testing.T) {
-	logFile, err := os.CreateTemp("./testLog", "testLog-*.log")
+	logFile, err := os.CreateTemp(t.TempDir(), "testLog-*.log")
 	if err != nil {
 		t.Fatalf("Failed to create testLog file: %v", err)
 	}
-	defer os.Remove(logFile.Name())
+	// defer os.Remove(logFile.Name())
 
 	animalChan := make(chan *Animal, 1)
 	wg := new(sync.WaitGroup)
@@ -22,18 +22,21 @@ func TestControlCondition(t *testing.T) {
 
 	animal := &Animal{
 		ID:     1,
-		Health: 40, // Рівень здоров'я нижче 50
-		Hunger: 20, // Рівень голоду нижче 30
-		Mood:   20, // Настрій нижче 30
+		Health: 25, // Рівень здоров'я нижче 30
+		Hunger: 25, // Рівень голоду нижче 30
+		Mood:   25, // Настрій нижче 30
 	}
 
 	go controlCondition(animalChan, wg, log)
 	animalChan <- animal
 
+	wg.Wait()
 	close(animalChan)
 
-	wg.Wait()
-	logFile.Close()
+	err = logFile.Close()
+	if err != nil {
+		return
+	}
 
 	content, err := os.ReadFile(logFile.Name())
 	if err != nil {
