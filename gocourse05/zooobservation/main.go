@@ -34,8 +34,8 @@ type HistoryItem struct {
 type History []HistoryItem
 
 type Camera interface {
-	DetectMovement(direction Direction, history *History, animalID int) error
-	SaveToServer(history *History) error
+	DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error)
+	SaveToServer(historyItems []HistoryItem) error
 }
 
 type DayCamera struct {
@@ -46,31 +46,47 @@ type NightCamera struct {
 	screenshot string
 }
 
-func (d *DayCamera) DetectMovement(direction Direction, history *History, animalID int) error {
-	*history = append(*history, HistoryItem{
+func moveToFront(direction Direction, historyItems []HistoryItem, animalID int) []HistoryItem {
+	prev := direction
+	for i, elem := range historyItems {
+		switch {
+		case i == 0:
+			historyItems[0].direction = direction
+			prev = elem.direction
+		case elem.direction == direction:
+			historyItems[i].direction = prev
+			return historyItems
+		default:
+			historyItems[i].direction = prev
+			prev = elem.direction
+		}
+	}
+	historyItems = append(historyItems, HistoryItem{
 		time:      time.Now(),
-		direction: direction,
+		direction: prev,
 		animalID:  animalID,
-	})
-	return d.SaveToServer(history)
+	},
+	)
+	return historyItems
 }
 
-func (n *NightCamera) DetectMovement(direction Direction, history *History, animalID int) error {
-	*history = append(*history, HistoryItem{
-		time:      time.Now(),
-		direction: direction,
-		animalID:  animalID,
-	})
-	return n.SaveToServer(history)
+func (d *DayCamera) DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error) {
+	historyItems = moveToFront(direction, historyItems, animalID)
+	return historyItems, d.SaveToServer(historyItems)
 }
 
-func (d *DayCamera) SaveToServer(history *History) error {
-	fmt.Println("DayCamera: History saved:", *history)
+func (n *NightCamera) DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error) {
+	historyItems = moveToFront(direction, historyItems, animalID)
+	return historyItems, n.SaveToServer(historyItems)
+}
+
+func (d *DayCamera) SaveToServer(historyItems []HistoryItem) error {
+	fmt.Println("DayCamera: History saved:", historyItems)
 	return nil
 }
 
-func (n *NightCamera) SaveToServer(history *History) error {
-	fmt.Println("NightCamera: History saved:", *history)
+func (n *NightCamera) SaveToServer(historyItems []HistoryItem) error {
+	fmt.Println("NightCamera: History saved:", historyItems)
 	return nil
 }
 
@@ -80,8 +96,8 @@ type Animal struct {
 	species string
 }
 
-func (t *Animal) Move(direction Direction, history *History) error {
-	return t.camera.DetectMovement(direction, history, t.id)
+func (t *Animal) Move(direction Direction, historyItems []HistoryItem) ([]HistoryItem, error) {
+	return t.camera.DetectMovement(direction, historyItems, t.id)
 }
 
 func main() {
@@ -101,21 +117,22 @@ func main() {
 		camera:  &nightCamera,
 		species: "bear",
 	}
-	history := &History{}
+	var history []HistoryItem
+	var err error
 
 	directions := [...]Direction{left, right, top, bottom}
 	for range 10 {
-		err := tiger.Move(directions[rand.IntN(len(directions))], history)
+		history, err = tiger.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}
-		err = bear.Move(directions[rand.IntN(len(directions))], history)
+		history, err = bear.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
 	fmt.Println("Motion history to be transmitted to the server:")
-	for _, d := range *history {
+	for _, d := range history {
 		fmt.Printf("Time: %s || Direction: %s || AnimalID: %d\n", d.time.Format(time.RFC3339), d.direction, d.animalID)
 	}
 }

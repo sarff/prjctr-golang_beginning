@@ -12,8 +12,8 @@ func TestSaveToServer(t *testing.T) {
 		}
 	}()
 
-	err := error(nil)
-	history := &History{{
+	var err error
+	history := &[]HistoryItem{{
 		time:      time.Now(),
 		direction: right,
 		animalID:  1,
@@ -26,12 +26,12 @@ func TestSaveToServer(t *testing.T) {
 		screenshot: "night_screenshot.png",
 	}
 
-	err = dayCamera.SaveToServer(history)
+	err = dayCamera.SaveToServer(*history)
 	if err != nil {
 		t.Errorf("Error saving history to server with DayCam")
 	}
 
-	err = nightCamera.SaveToServer(history)
+	err = nightCamera.SaveToServer(*history)
 	if err != nil {
 		t.Errorf("Error saving history to server with NightCam")
 	}
@@ -39,7 +39,7 @@ func TestSaveToServer(t *testing.T) {
 
 func TestDayCamera_DetectMovement(t *testing.T) {
 	direct := left
-	history := &History{}
+	var history []HistoryItem
 
 	tiger := Animal{
 		id: 1,
@@ -49,7 +49,8 @@ func TestDayCamera_DetectMovement(t *testing.T) {
 		species: "tiger",
 	}
 
-	err := tiger.camera.DetectMovement(direct, history, tiger.id)
+	var err error
+	history, err = tiger.camera.DetectMovement(direct, history, tiger.id)
 	if err != nil {
 		t.Errorf("Error saving history to server with DetectMovement() Tiger")
 	}
@@ -57,7 +58,7 @@ func TestDayCamera_DetectMovement(t *testing.T) {
 
 func TestNightCamera_DetectMovement(t *testing.T) {
 	direct := bottom
-	history := &History{}
+	var history []HistoryItem
 	bear := Animal{
 		id: 2,
 		camera: &NightCamera{
@@ -65,7 +66,8 @@ func TestNightCamera_DetectMovement(t *testing.T) {
 		},
 		species: "bear",
 	}
-	err := bear.camera.DetectMovement(direct, history, bear.id)
+	var err error
+	history, err = bear.camera.DetectMovement(direct, history, bear.id)
 	if err != nil {
 		t.Errorf("Error saving history to server with DetectMovement() Bear")
 	}
@@ -73,7 +75,7 @@ func TestNightCamera_DetectMovement(t *testing.T) {
 
 func TestAnimal_Move(t *testing.T) {
 	direct := left
-	history := &History{}
+	var history []HistoryItem
 
 	tiger := Animal{
 		id: 1,
@@ -82,8 +84,8 @@ func TestAnimal_Move(t *testing.T) {
 		},
 		species: "tiger",
 	}
-
-	err := tiger.Move(direct, history)
+	var err error
+	history, err = tiger.Move(direct, history)
 	if err != nil {
 		t.Errorf("Error saving history to server with Move() Tiger")
 	}
