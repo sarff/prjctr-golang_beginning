@@ -47,11 +47,7 @@ type NightCamera struct {
 }
 
 func (d *DayCamera) DetectMovement(direction Direction, history *History, animalID int) error {
-	*history = append(*history, struct {
-		time      time.Time
-		direction Direction
-		animalID  int
-	}{
+	*history = append(*history, HistoryItem{
 		time:      time.Now(),
 		direction: direction,
 		animalID:  animalID,
@@ -60,11 +56,7 @@ func (d *DayCamera) DetectMovement(direction Direction, history *History, animal
 }
 
 func (n *NightCamera) DetectMovement(direction Direction, history *History, animalID int) error {
-	*history = append(*history, struct {
-		time      time.Time
-		direction Direction
-		animalID  int
-	}{
+	*history = append(*history, HistoryItem{
 		time:      time.Now(),
 		direction: direction,
 		animalID:  animalID,
@@ -84,12 +76,12 @@ func (n *NightCamera) SaveToServer(history *History) error {
 
 type Animal struct {
 	id      int
-	cam     Camera
+	camera  Camera
 	species string
 }
 
 func (t *Animal) Move(direction Direction, history *History) error {
-	return t.cam.DetectMovement(direction, history, t.id)
+	return t.camera.DetectMovement(direction, history, t.id)
 }
 
 func main() {
@@ -101,23 +93,23 @@ func main() {
 	}
 	tiger := Animal{
 		id:      1,
-		cam:     &dayCamera,
+		camera:  &dayCamera,
 		species: "tiger",
 	}
 	bear := Animal{
 		id:      2,
-		cam:     &nightCamera,
+		camera:  &nightCamera,
 		species: "bear",
 	}
 	history := &History{}
 
-	direct := [...]Direction{left, right, top, bottom}
-	for i := 0; i < 10; i++ {
-		err := tiger.Move(direct[rand.IntN(len(direct))], history)
+	directions := [...]Direction{left, right, top, bottom}
+	for range 10 {
+		err := tiger.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}
-		err = bear.Move(direct[rand.IntN(len(direct))], history)
+		err = bear.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}

@@ -18,10 +18,10 @@ type PNGImageProcessor struct {
 	path string
 }
 
-func (i *PNGImageProcessor) Process() error {
+func (p *PNGImageProcessor) Process() error {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("We processed a panic, result = %v. Image: %s\n", r, i.path)
+			fmt.Printf("We processed a panic, result = %v. Image: %s\n", r, p.path)
 		} else {
 			fmt.Println("Everything finished successfully")
 		}
@@ -29,13 +29,15 @@ func (i *PNGImageProcessor) Process() error {
 
 	fmt.Println("Trying to process png image")
 
+	// fake panic
 	var s *string
 	fmt.Println(*s)
+
 	return nil
 }
 
-func (i *BMPImageProcessor) Process() error {
-	fmt.Printf("We processed bmp image: %s\n", i.path)
+func (p *BMPImageProcessor) Process() error {
+	fmt.Printf("We processed bmp image: %s\n", p.path)
 	return nil
 }
 
