@@ -14,111 +14,32 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"time"
+
+	"zooobservation/animal"
+	"zooobservation/camera"
 )
-
-type Direction string
-
-const (
-	left   Direction = "left"
-	right  Direction = "right"
-	top    Direction = "top"
-	bottom Direction = "bottom"
-)
-
-type HistoryItem struct {
-	time      time.Time
-	direction Direction
-	animalID  int
-}
-
-type Camera interface {
-	DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error)
-	SaveToServer(historyItems []HistoryItem) error
-}
-
-type DayCamera struct {
-	screenshot string
-}
-
-type NightCamera struct {
-	screenshot string
-}
-
-func moveToFront(direction Direction, historyItems []HistoryItem, animalID int) []HistoryItem {
-	prev := direction
-	for i, elem := range historyItems {
-		switch {
-		case i == 0:
-			historyItems[0].direction = direction
-			prev = elem.direction
-		case elem.direction == direction:
-			historyItems[i].direction = prev
-			return historyItems
-		default:
-			historyItems[i].direction = prev
-			prev = elem.direction
-		}
-	}
-	historyItems = append(historyItems, HistoryItem{
-		time:      time.Now(),
-		direction: prev,
-		animalID:  animalID,
-	},
-	)
-	return historyItems
-}
-
-func (d *DayCamera) DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error) {
-	historyItems = moveToFront(direction, historyItems, animalID)
-	return historyItems, d.SaveToServer(historyItems)
-}
-
-func (n *NightCamera) DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error) {
-	historyItems = moveToFront(direction, historyItems, animalID)
-	return historyItems, n.SaveToServer(historyItems)
-}
-
-func (d *DayCamera) SaveToServer(historyItems []HistoryItem) error {
-	fmt.Println("Simulation: DayCamera history saved:", historyItems)
-	return nil
-}
-
-func (n *NightCamera) SaveToServer(historyItems []HistoryItem) error {
-	fmt.Println("Simulation: NightCamera history saved:", historyItems)
-	return nil
-}
-
-type Animal struct {
-	id      int
-	camera  Camera
-	species string
-}
-
-func (t *Animal) Move(direction Direction, historyItems []HistoryItem) ([]HistoryItem, error) {
-	return t.camera.DetectMovement(direction, historyItems, t.id)
-}
 
 func main() {
-	dayCamera := DayCamera{
-		screenshot: "day_screenshot.png",
+	dayCamera := camera.DayCamera{
+		Screenshot: "day_screenshot.png",
 	}
-	nightCamera := NightCamera{
-		screenshot: "night_screenshot.png",
+	nightCamera := camera.NightCamera{
+		Screenshot: "night_screenshot.png",
 	}
-	tiger := Animal{
-		id:      1,
-		camera:  &dayCamera,
-		species: "tiger",
+	tiger := animal.Animal{
+		Id:      1,
+		Camera:  &dayCamera,
+		Species: "tiger",
 	}
-	bear := Animal{
-		id:      2,
-		camera:  &nightCamera,
-		species: "bear",
+	bear := animal.Animal{
+		Id:      2,
+		Camera:  &nightCamera,
+		Species: "bear",
 	}
-	var history []HistoryItem
+	var history []camera.HistoryItem
 	var err error
 
-	directions := [...]Direction{left, right, top, bottom}
+	directions := [...]camera.Direction{camera.Left, camera.Right, camera.Top, camera.Bottom}
 	for range 10 {
 		history, err = tiger.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
@@ -131,6 +52,6 @@ func main() {
 	}
 	fmt.Println("Motion history to be transmitted to the server:")
 	for _, d := range history {
-		fmt.Printf("Time: %s || Direction: %s || AnimalID: %d\n", d.time.Format(time.RFC3339), d.direction, d.animalID)
+		fmt.Printf("Time: %s || Direction: %s || AnimalID: %d\n", d.Time.Format(time.RFC3339), d.Direction, d.AnimalID)
 	}
 }

@@ -1,3 +1,3 @@
-module github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation
+module zooobservation
 
 go 1.23.0
