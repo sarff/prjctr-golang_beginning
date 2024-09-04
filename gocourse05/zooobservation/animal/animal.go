@@ -1,6 +1,9 @@
 package animal
 
-import "zooobservation/camera"
+import (
+	"zooobservation/camera"
+	"zooobservation/common"
+)
 
 type Animal struct {
 	Id      int
@@ -8,6 +11,6 @@ type Animal struct {
 	Species string
 }
 
-func (t *Animal) Move(direction camera.Direction, historyItems []camera.HistoryItem) ([]camera.HistoryItem, error) {
+func (t *Animal) Move(direction common.Direction, historyItems []common.HistoryItem) ([]common.HistoryItem, error) {
 	return t.Camera.DetectMovement(direction, historyItems, t.Id)
 }

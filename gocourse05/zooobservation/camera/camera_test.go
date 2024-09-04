@@ -1,15 +1,17 @@
 package camera
 
 import (
+	"fmt"
 	"testing"
 	"time"
-	"zooobservation/animal"
+
+	"zooobservation/common"
 )
 
 func TestDayCameraSaveToServer(t *testing.T) {
-	historyItems := []HistoryItem{{
+	historyItems := []common.HistoryItem{{
 		Time:      time.Now(),
-		Direction: Right,
+		Direction: common.Right,
 		AnimalID:  1,
 	}}
 
@@ -24,9 +26,9 @@ func TestDayCameraSaveToServer(t *testing.T) {
 }
 
 func TestNightCameraSaveToServer(t *testing.T) {
-	historyItems := []HistoryItem{{
+	historyItems := []common.HistoryItem{{
 		Time:      time.Now(),
-		Direction: Right,
+		Direction: common.Right,
 		AnimalID:  1,
 	}}
 
@@ -40,51 +42,18 @@ func TestNightCameraSaveToServer(t *testing.T) {
 	}
 }
 
-func TestDayCamera_DetectMovement(t *testing.T) {
-	direct := Left
-	var historyItems []HistoryItem
-
-	tiger := animal.Animal{
-		Id: 1,
-		Camera: &DayCamera{
-			Screenshot: "day_screenshot.png",
-		},
-		Species: "tiger",
+func TestMoveToFront(t *testing.T) {
+	historyItems := []common.HistoryItem{{
+		Time:      time.Now(),
+		Direction: common.Right,
+		AnimalID:  1,
+	}}
+	history := moveToFront(common.Bottom, historyItems, -1)
+	if history[1].AnimalID != -1 {
+		t.Errorf("history[1].AnimalID = %v, want -1", history[1].AnimalID)
 	}
-
-	history, err := tiger.Camera.DetectMovement(direct, historyItems, tiger.Id)
-	if err != nil {
-		t.Fatalf("Error saving history to server with DetectMovement() Tiger: %v", err)
-	} else if history[0].Direction != direct || history[0].AnimalID != tiger.Id {
-		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].Direction,
-			history[0].AnimalID, direct, tiger.Id)
+	if history[0].Direction != common.Bottom {
+		t.Errorf("history[0].Direction = %v, want Bottom", history[0].Direction)
 	}
+	fmt.Println(history)
 }
-
-func TestNightCamera_DetectMovement(t *testing.T) {
-	direct := Bottom
-	var historyItems []HistoryItem
-	bear := animal.Animal{
-		Id: 2,
-		Camera: &NightCamera{
-			Screenshot: "night_screenshot.png",
-		},
-		Species: "bear",
-	}
-
-	history, err := bear.Camera.DetectMovement(direct, historyItems, bear.Id)
-	if err != nil {
-		t.Fatalf("Error saving history to server with DetectMovement() Bear: %v", err)
-	} else if history[0].Direction != direct || history[0].AnimalID != bear.Id {
-		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].Direction,
-			history[0].AnimalID, direct, bear.Id)
-	}
-}
-
-//func TestMoveToFront(t *testing.T) {
-//	direct := Left
-//	var historyItems []HistoryItem
-//
-//	history := moveToFront(direct, historyItems, 1)
-//	fmt.Println(history)
-//}

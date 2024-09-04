@@ -15,6 +15,8 @@ import (
 	"math/rand/v2"
 	"time"
 
+	"zooobservation/common"
+
 	"zooobservation/animal"
 	"zooobservation/camera"
 )
@@ -36,10 +38,10 @@ func main() {
 		Camera:  &nightCamera,
 		Species: "bear",
 	}
-	var history []camera.HistoryItem
+	var history []common.HistoryItem
 	var err error
 
-	directions := [...]camera.Direction{camera.Left, camera.Right, camera.Top, camera.Bottom}
+	directions := [...]common.Direction{common.Left, common.Right, common.Top, common.Bottom}
 	for range 10 {
 		history, err = tiger.Move(directions[rand.IntN(len(directions))], history)
 		if err != nil {
