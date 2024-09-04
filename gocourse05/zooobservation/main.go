@@ -31,8 +31,6 @@ type HistoryItem struct {
 	animalID  int
 }
 
-type History []HistoryItem
-
 type Camera interface {
 	DetectMovement(direction Direction, historyItems []HistoryItem, animalID int) ([]HistoryItem, error)
 	SaveToServer(historyItems []HistoryItem) error
@@ -81,12 +79,12 @@ func (n *NightCamera) DetectMovement(direction Direction, historyItems []History
 }
 
 func (d *DayCamera) SaveToServer(historyItems []HistoryItem) error {
-	fmt.Println("DayCamera: History saved:", historyItems)
+	fmt.Println("Simulation: DayCamera history saved:", historyItems)
 	return nil
 }
 
 func (n *NightCamera) SaveToServer(historyItems []HistoryItem) error {
-	fmt.Println("NightCamera: History saved:", historyItems)
+	fmt.Println("Simulation: NightCamera history saved:", historyItems)
 	return nil
 }
 

@@ -1,11 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
 
-func TestSaveToServer(t *testing.T) {
+func TestDayCameraSaveToServer(t *testing.T) {
+	t.Run("panic", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("Should have panic")
+			}
+		}()
+		var s *string
+		fmt.Println(*s)
+	})
+
+	var err error
+	history := &[]HistoryItem{{
+		time:      time.Now(),
+		direction: right,
+		animalID:  1,
+	}}
+
+	dayCamera := DayCamera{
+		screenshot: "day_screenshot.png",
+	}
+
+	err = dayCamera.SaveToServer(*history)
+	if err != nil {
+		t.Errorf("Error saving history to server with DayCam: %v", err)
+	}
+}
+
+func TestNightCameraSaveToServer(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			t.Errorf("The code have panic")
@@ -19,21 +48,13 @@ func TestSaveToServer(t *testing.T) {
 		animalID:  1,
 	}}
 
-	dayCamera := DayCamera{
-		screenshot: "day_screenshot.png",
-	}
 	nightCamera := NightCamera{
 		screenshot: "night_screenshot.png",
 	}
 
-	err = dayCamera.SaveToServer(*history)
-	if err != nil {
-		t.Errorf("Error saving history to server with DayCam")
-	}
-
 	err = nightCamera.SaveToServer(*history)
 	if err != nil {
-		t.Errorf("Error saving history to server with NightCam")
+		t.Errorf("Error saving history to server with NightCam: %v", err)
 	}
 }
 
@@ -52,7 +73,10 @@ func TestDayCamera_DetectMovement(t *testing.T) {
 	var err error
 	history, err = tiger.camera.DetectMovement(direct, history, tiger.id)
 	if err != nil {
-		t.Errorf("Error saving history to server with DetectMovement() Tiger")
+		t.Errorf("Error saving history to server with DetectMovement() Tiger: %v", err)
+	} else if history[0].direction != direct || history[0].animalID != tiger.id {
+		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].direction,
+			history[0].animalID, direct, tiger.id)
 	}
 }
 
@@ -69,7 +93,10 @@ func TestNightCamera_DetectMovement(t *testing.T) {
 	var err error
 	history, err = bear.camera.DetectMovement(direct, history, bear.id)
 	if err != nil {
-		t.Errorf("Error saving history to server with DetectMovement() Bear")
+		t.Errorf("Error saving history to server with DetectMovement() Bear: %v", err)
+	} else if history[0].direction != direct || history[0].animalID != bear.id {
+		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].direction,
+			history[0].animalID, direct, bear.id)
 	}
 }
 
@@ -87,6 +114,9 @@ func TestAnimal_Move(t *testing.T) {
 	var err error
 	history, err = tiger.Move(direct, history)
 	if err != nil {
-		t.Errorf("Error saving history to server with Move() Tiger")
+		t.Errorf("Error saving history to server with Move() Tiger: %v", err)
+	} else if history[0].direction != direct || history[0].animalID != tiger.id {
+		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].direction,
+			history[0].animalID, direct, tiger.id)
 	}
 }
