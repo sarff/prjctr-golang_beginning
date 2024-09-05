@@ -2,8 +2,8 @@ package camera
 
 import (
 	"fmt"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
 	"time"
-	"zooobservation/common"
 )
 
 type DayCamera struct {

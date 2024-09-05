@@ -3,8 +3,8 @@ package animal
 import (
 	"testing"
 
-	"zooobservation/camera"
-	"zooobservation/common"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/camera"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
 )
 
 func TestAnimal_Move(t *testing.T) {

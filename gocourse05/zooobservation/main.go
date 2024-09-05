@@ -12,13 +12,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/animal"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/camera"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
 	"math/rand/v2"
 	"time"
-
-	"zooobservation/common"
-
-	"zooobservation/animal"
-	"zooobservation/camera"
 )
 
 func main() {

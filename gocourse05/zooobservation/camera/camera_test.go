@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"zooobservation/common"
+	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
 )
 
 func TestDayCameraSaveToServer(t *testing.T) {
