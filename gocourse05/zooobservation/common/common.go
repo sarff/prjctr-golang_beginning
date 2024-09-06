@@ -14,5 +14,5 @@ const (
 type HistoryItem struct {
 	Time      time.Time
 	Direction Direction
-	AnimalID  int
+	ID        int
 }

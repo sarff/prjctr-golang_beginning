@@ -12,11 +12,12 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
+	"time"
+
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/animal"
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/camera"
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
-	"math/rand/v2"
-	"time"
 )
 
 func main() {
@@ -27,12 +28,12 @@ func main() {
 		Screenshot: "night_screenshot.png",
 	}
 	tiger := animal.Animal{
-		Id:      1,
+		ID:      1,
 		Camera:  &dayCamera,
 		Species: "tiger",
 	}
 	bear := animal.Animal{
-		Id:      2,
+		ID:      2,
 		Camera:  &nightCamera,
 		Species: "bear",
 	}
@@ -52,6 +53,6 @@ func main() {
 	}
 	fmt.Println("Motion history to be transmitted to the server:")
 	for _, d := range history {
-		fmt.Printf("Time: %s || Direction: %s || AnimalID: %d\n", d.Time.Format(time.RFC3339), d.Direction, d.AnimalID)
+		fmt.Printf("Time: %s || Direction: %s || ID: %d\n", d.Time.Format(time.RFC3339), d.Direction, d.ID)
 	}
 }

@@ -29,7 +29,7 @@ func (p *PNGImageProcessor) Process() error {
 
 	fmt.Println("Trying to process png image")
 
-	// fake panic
+	// emulating possible panic
 	var s *string
 	fmt.Println(*s)
 
@@ -54,7 +54,6 @@ func main() {
 		err := p.Process()
 		if err != nil {
 			fmt.Printf("Error processing image: %s\n", err)
-			return
 		}
 	}
 }

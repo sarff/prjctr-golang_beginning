@@ -1,7 +1,6 @@
 package camera
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -12,7 +11,7 @@ func TestDayCameraSaveToServer(t *testing.T) {
 	historyItems := []common.HistoryItem{{
 		Time:      time.Now(),
 		Direction: common.Right,
-		AnimalID:  1,
+		ID:        1,
 	}}
 
 	dayCamera := DayCamera{
@@ -29,7 +28,7 @@ func TestNightCameraSaveToServer(t *testing.T) {
 	historyItems := []common.HistoryItem{{
 		Time:      time.Now(),
 		Direction: common.Right,
-		AnimalID:  1,
+		ID:        1,
 	}}
 
 	nightCamera := NightCamera{
@@ -46,14 +45,13 @@ func TestMoveToFront(t *testing.T) {
 	historyItems := []common.HistoryItem{{
 		Time:      time.Now(),
 		Direction: common.Right,
-		AnimalID:  1,
+		ID:        1,
 	}}
 	history := moveToFront(common.Bottom, historyItems, -1)
-	if history[1].AnimalID != -1 {
-		t.Errorf("history[1].AnimalID = %v, want -1", history[1].AnimalID)
+	if history[1].ID != -1 {
+		t.Errorf("history[1].ID = %v, want -1", history[1].ID)
 	}
 	if history[0].Direction != common.Bottom {
 		t.Errorf("history[0].Direction = %v, want Bottom", history[0].Direction)
 	}
-	fmt.Println(history)
 }

@@ -8,63 +8,79 @@ import (
 )
 
 func TestAnimal_Move(t *testing.T) {
-	direct := common.Left
-	var historyItems []common.HistoryItem
+	direction := common.Left
 
 	tiger := Animal{
-		Id: 1,
+		ID: 1,
 		Camera: &camera.DayCamera{
 			Screenshot: "day_screenshot.png",
 		},
 		Species: "tiger",
 	}
 
-	history, err := tiger.Move(direct, historyItems)
+	history, err := tiger.Move(direction, nil)
 	if err != nil {
-		t.Fatalf("Error saving history to server with Move() Tiger: %v", err)
-	} else if history[0].Direction != direct || history[0].AnimalID != tiger.Id {
-		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].Direction,
-			history[0].AnimalID, direct, tiger.Id)
+		t.Fatalf("Unexpected error: got=%v, but want=<nil>", err)
+	}
+	if len(history) == 0 {
+		t.Fatalf("Unexpected empty history")
+	}
+	if history[0].ID != tiger.ID {
+		t.Errorf("Wrong history animalID: got=%v, but want=%v", history[0].ID, tiger.ID)
+	}
+	if history[0].Direction != direction {
+		t.Errorf("Wrong direction: got=%v, but want=%v", history[0].Direction, direction)
 	}
 }
 
 func TestDayCamera_DetectMovement(t *testing.T) {
-	direct := common.Left
-	var historyItems []common.HistoryItem
+	direction := common.Left
 
 	tiger := Animal{
-		Id: 1,
+		ID: 1,
 		Camera: &camera.DayCamera{
 			Screenshot: "day_screenshot.png",
 		},
 		Species: "tiger",
 	}
 
-	history, err := tiger.Camera.DetectMovement(direct, historyItems, tiger.Id)
+	history, err := tiger.Camera.DetectMovement(direction, nil, tiger.ID)
 	if err != nil {
-		t.Fatalf("Error saving history to server with DetectMovement() Tiger: %v", err)
-	} else if history[0].Direction != direct || history[0].AnimalID != tiger.Id {
-		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].Direction,
-			history[0].AnimalID, direct, tiger.Id)
+		t.Fatalf("Unexpected error: got=%v, but want=<nil>", err)
+	}
+	if len(history) == 0 {
+		t.Fatalf("Unexpected empty history")
+	}
+	if history[0].ID != tiger.ID {
+		t.Errorf("Wrong history animalID: got=%v, but want=%v", history[0].ID, tiger.ID)
+	}
+	if history[0].Direction != direction {
+		t.Errorf("Wrong direction: got=%v, but want=%v", history[0].Direction, direction)
 	}
 }
 
 func TestNightCamera_DetectMovement(t *testing.T) {
-	direct := common.Bottom
+	direction := common.Bottom
 	var historyItems []common.HistoryItem
 	bear := Animal{
-		Id: 2,
+		ID: 2,
 		Camera: &camera.NightCamera{
 			Screenshot: "night_screenshot.png",
 		},
 		Species: "bear",
 	}
 
-	history, err := bear.Camera.DetectMovement(direct, historyItems, bear.Id)
+	history, err := bear.Camera.DetectMovement(direction, historyItems, bear.ID)
 	if err != nil {
-		t.Fatalf("Error saving history to server with DetectMovement() Bear: %v", err)
-	} else if history[0].Direction != direct || history[0].AnimalID != bear.Id {
-		t.Errorf("We got direction=%s and animalID=%d instead of: %s, %d", history[0].Direction,
-			history[0].AnimalID, direct, bear.Id)
+		t.Fatalf("Unexpected error: got=%v, but want=<nil>", err)
+	}
+	if len(history) == 0 {
+		t.Fatalf("Unexpected empty history")
+	}
+	if history[0].ID != bear.ID {
+		t.Errorf("Wrong history animalID: got=%v, but want=%v", history[0].ID, bear.ID)
+	}
+	if history[0].Direction != direction {
+		t.Errorf("Wrong direction: got=%v, but want=%v", history[0].Direction, direction)
 	}
 }

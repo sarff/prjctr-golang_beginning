@@ -57,7 +57,7 @@ func moveToFront(direction common.Direction, historyItems []common.HistoryItem, 
 	historyItems = append(historyItems, common.HistoryItem{
 		Time:      time.Now(),
 		Direction: prev,
-		AnimalID:  animalID,
+		ID:        animalID,
 	},
 	)
 	return historyItems
