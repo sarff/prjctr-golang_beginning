@@ -12,7 +12,6 @@ func TestControlCondition(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create testLog file: %v", err)
 	}
-	// defer os.Remove(logFile.Name())
 
 	animalChan := make(chan *Animal, 1)
 	wg := new(sync.WaitGroup)

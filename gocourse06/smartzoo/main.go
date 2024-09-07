@@ -77,7 +77,7 @@ func generateEnclosures(n int) []Enclosure {
 	return enclosures
 }
 
-// Генерує тестові дані для кормушок
+// Генерує тестові дані для годівниці
 func generateFeeders(n int) []Feeder {
 	feeders := make([]Feeder, n)
 	for i := range n {
@@ -91,6 +91,7 @@ func generateFeeders(n int) []Feeder {
 
 func controlCondition(animalChan <-chan *Animal, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
+	wg.Add(1)
 	time.Sleep(1 * time.Second)
 
 	if animal, ok := <-animalChan; ok {
@@ -108,6 +109,7 @@ func controlCondition(animalChan <-chan *Animal, wg *sync.WaitGroup, log *slog.L
 
 func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
+	wg.Add(1)
 	if enclosure, ok := <-enclosureChan; ok {
 		enclosure.IsOpen = isOpen
 		if isOpen {
@@ -121,6 +123,7 @@ func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitG
 
 func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
+	wg.Add(1)
 	time.Sleep(3 * time.Second) // must be more than 3
 	if feed, ok := <-feedChan; ok {
 		if feed.IsEmpty {
@@ -152,32 +155,24 @@ func main() {
 	animalChan := make(chan *Animal)
 	enclosureChan := make(chan *Enclosure)
 	feederChan := make(chan *Feeder)
-	go func() {
-		for _, animal := range animals {
-			wg.Add(1)
-			go controlCondition(animalChan, wg, log)
-			animalChan <- &animal
-		}
-	}()
+	for _, animal := range animals {
+		go controlCondition(animalChan, wg, log)
+		animalChan <- &animal
+	}
 
-	go func() {
-		for _, enclosure := range enclosures {
-			wg.Add(1)
-			isOpen := true
-			if enclosure.IsOpen {
-				isOpen = false
-			}
-			go controlEnclosure(enclosureChan, isOpen, wg, log)
-			enclosureChan <- &enclosure
+	for _, enclosure := range enclosures {
+		isOpen := true
+		if enclosure.IsOpen {
+			isOpen = false
 		}
-	}()
+		go controlEnclosure(enclosureChan, isOpen, wg, log)
+		enclosureChan <- &enclosure
+	}
 
 	for _, feeder := range feeders {
-		wg.Add(1)
 		go controlFeeder(feederChan, wg, log)
 		feederChan <- &feeder
 	}
-	wg.Wait()
 
 	log.Info("Simulation Done")
 }
