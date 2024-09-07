@@ -17,36 +17,32 @@ import (
 
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/animal"
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/camera"
-	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/common"
 )
 
 func main() {
-	dayCamera := camera.DayCamera{
-		Screenshot: "day_screenshot.png",
-	}
-	nightCamera := camera.NightCamera{
-		Screenshot: "night_screenshot.png",
+	controller := camera.Controller{
+		DayCamera:   camera.DayCamera{},
+		NightCamera: camera.NightCamera{},
 	}
 	tiger := animal.Animal{
 		ID:      1,
-		Camera:  &dayCamera,
 		Species: "tiger",
 	}
 	bear := animal.Animal{
 		ID:      2,
-		Camera:  &nightCamera,
 		Species: "bear",
 	}
-	var history []common.HistoryItem
+	var history []camera.HistoryItem
 	var err error
 
-	directions := [...]common.Direction{common.Left, common.Right, common.Top, common.Bottom}
+	directions := [...]camera.Direction{camera.Left, camera.Right, camera.Top, camera.Bottom}
 	for range 10 {
-		history, err = tiger.Move(directions[rand.IntN(len(directions))], history)
+
+		history, err = controller.Move(tiger, directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}
-		history, err = bear.Move(directions[rand.IntN(len(directions))], history)
+		history, err = controller.Move(bear, directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
 		}
