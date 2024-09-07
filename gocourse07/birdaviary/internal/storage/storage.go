@@ -3,7 +3,7 @@ package storage
 import (
 	"sync"
 
-	"birdaviary/internal/logger"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/logger"
 )
 
 type Storage struct {

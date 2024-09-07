@@ -1,8 +1,8 @@
 package centralsystem
 
 import (
-	"birdaviary/internal/logger"
-	"birdaviary/internal/storage"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/logger"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/storage"
 	"sync"
 )
 

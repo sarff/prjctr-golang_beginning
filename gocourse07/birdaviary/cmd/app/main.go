@@ -13,10 +13,10 @@ import (
 	"os"
 	"sync"
 
-	"birdaviary/internal/centralsystem"
-	"birdaviary/internal/logger"
-	"birdaviary/internal/sensor"
-	"birdaviary/internal/storage"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/centralsystem"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/logger"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/sensor"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/storage"
 )
 
 func main() {

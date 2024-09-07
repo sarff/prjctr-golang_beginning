@@ -1,8 +1,8 @@
 package sensor
 
 import (
-	"birdaviary/internal/centralsystem"
-	"birdaviary/internal/logger"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/centralsystem"
+	"github.com/sarff/prjctr-golang_beginning/gocourse07/birdaviary/internal/logger"
 )
 
 type TemperatureSensor struct {
