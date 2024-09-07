@@ -7,9 +7,10 @@ import (
 )
 
 type Storage struct {
-	data map[string][]int
 	mu   sync.Mutex
-	log  *logger.Logger
+	data map[string][]int
+
+	log *logger.Logger
 }
 
 func NewStorage(log *logger.Logger) *Storage {
@@ -20,9 +21,9 @@ func NewStorage(log *logger.Logger) *Storage {
 }
 
 func (m *Storage) Save(sensorName string, value int) {
-	defer m.mu.Unlock()
 	m.mu.Lock()
 	m.data[sensorName] = append(m.data[sensorName], value)
+	m.mu.Unlock()
 	m.log.Info("Data saved:", sensorName, value)
 }
 

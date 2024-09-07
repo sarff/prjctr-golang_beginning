@@ -29,18 +29,14 @@ func main() {
 	humiditySensor := sensor.NewHumiditySensor(cs, log)
 	brightnessSensor := sensor.NewBrightnessSensor(cs, log)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for range 24 {
-			wg.Add(1)
-			go tempSensor.Start(wg)
-			wg.Add(1)
-			go humiditySensor.Start(wg)
-			wg.Add(1)
-			go brightnessSensor.Start(wg)
-		}
-	}()
+	for range 24 {
+		wg.Add(1)
+		go tempSensor.Start(wg)
+		wg.Add(1)
+		go humiditySensor.Start(wg)
+		wg.Add(1)
+		go brightnessSensor.Start(wg)
+	}
 
 	wg.Add(1)
 	go cs.Start(wg)
@@ -49,6 +45,7 @@ func main() {
 	loadName := "TemperatureSensor"
 	load, err := db.Load(loadName)
 	if err != nil {
+		log.Warn("Cant load by Name from database", "name", loadName, "error description", err)
 		return
 	}
 	log.Info("History data:", loadName, load)

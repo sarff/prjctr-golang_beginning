@@ -1,15 +1,15 @@
 package logger
 
 import (
+	"io"
 	"log/slog"
-	"os"
 )
 
 type Logger struct {
 	*slog.Logger
 }
 
-func New(writer *os.File) *Logger {
+func New(writer io.Writer) *Logger {
 	log := &Logger{
 		Logger: slog.New(slog.NewJSONHandler(writer, nil)),
 	}

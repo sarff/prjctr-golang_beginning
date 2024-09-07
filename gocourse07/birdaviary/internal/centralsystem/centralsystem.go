@@ -7,13 +7,13 @@ import (
 )
 
 type CentralSystem struct {
-	Memory *storage.Storage
+	memory *storage.Storage
 	log    *logger.Logger
 }
 
 func NewCentralSystem(db *storage.Storage, log *logger.Logger) *CentralSystem {
 	return &CentralSystem{
-		Memory: db,
+		memory: db,
 		log:    log,
 	}
 }
@@ -28,5 +28,5 @@ func (c *CentralSystem) Stop() {
 }
 
 func (c *CentralSystem) SaveData(name string, value int) {
-	c.Memory.Save(name, value)
+	c.memory.Save(name, value)
 }
