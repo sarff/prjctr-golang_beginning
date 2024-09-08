@@ -19,25 +19,24 @@ import (
 	"github.com/sarff/prjctr-golang_beginning/gocourse05/zooobservation/camera"
 )
 
+const tiger = "tiger"
+const bear = "bear"
+
 func main() {
-	controller := camera.Controller{
-		DayCamera:   camera.DayCamera{},
-		NightCamera: camera.NightCamera{},
-	}
+	controller := camera.NewController()
 	tiger := animal.Animal{
 		ID:      1,
-		Species: "tiger",
+		Species: tiger,
 	}
 	bear := animal.Animal{
 		ID:      2,
-		Species: "bear",
+		Species: bear,
 	}
 	var history []camera.HistoryItem
 	var err error
 
 	directions := [...]camera.Direction{camera.Left, camera.Right, camera.Top, camera.Bottom}
 	for range 10 {
-
 		history, err = controller.Move(tiger, directions[rand.IntN(len(directions))], history)
 		if err != nil {
 			fmt.Println(err)
@@ -49,6 +48,6 @@ func main() {
 	}
 	fmt.Println("Motion history to be transmitted to the server:")
 	for _, d := range history {
-		fmt.Printf("Time: %s || Direction: %s || ID: %d\n", d.Time.Format(time.RFC3339), d.Direction, d.ID)
+		fmt.Printf("CreatedAt: %s || Direction: %s || ID: %d\n", d.CreatedAt.Format(time.RFC3339), d.Direction, d.ID)
 	}
 }

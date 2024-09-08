@@ -9,7 +9,7 @@ import (
 
 func TestDayCameraSaveToServer(t *testing.T) {
 	historyItems := []HistoryItem{{
-		Time:      time.Now(),
+		CreatedAt: time.Now(),
 		Direction: Right,
 		ID:        1,
 	}}
@@ -24,7 +24,7 @@ func TestDayCameraSaveToServer(t *testing.T) {
 
 func TestNightCameraSaveToServer(t *testing.T) {
 	historyItems := []HistoryItem{{
-		Time:      time.Now(),
+		CreatedAt: time.Now(),
 		Direction: Top,
 		ID:        1,
 	}}
@@ -38,18 +38,54 @@ func TestNightCameraSaveToServer(t *testing.T) {
 }
 
 func TestMoveToFront(t *testing.T) {
-	historyItems := []HistoryItem{{
-		Time:      time.Now(),
-		Direction: Right,
-		ID:        1,
-	}}
+	historyItems := []HistoryItem{
+		{
+			CreatedAt: time.Now(),
+			Direction: Right,
+			ID:        1,
+		},
+		{
+			CreatedAt: time.Now(),
+			Direction: Left,
+			ID:        2,
+		},
+		{
+			CreatedAt: time.Now(),
+			Direction: Top,
+			ID:        4,
+		},
+		{
+			CreatedAt: time.Now(),
+			Direction: Top,
+			ID:        5,
+		},
+	}
 	history := moveToFront(Bottom, historyItems, -1)
-	if history[1].ID != -1 {
-		t.Errorf("history[1].ID = %v, want -1", history[1].ID)
+	if history[len(history)-1].ID != -1 {
+		t.Errorf("history[last element].ID = %v, want -1", history[len(history)-1].ID)
 	}
 	if history[0].Direction != Bottom {
 		t.Errorf("history[0].Direction = %v, want Bottom", history[0].Direction)
 	}
+	if history[1].Direction != Right {
+		t.Errorf("history[1].Direction = %v, want Right", history[1].Direction)
+	}
+	if history[2].Direction != Left {
+		t.Errorf("history[2].Direction = %v, want Left", history[2].Direction)
+	}
+	if history[3].Direction != Top && history[3].ID == 5 {
+		t.Errorf("history[3].Direction = %v and ID = %v, want Top with ID 5", history[2].Direction, history[3].ID)
+	}
+
+	t.Run("moveToFront_2", func(t *testing.T) {
+		history = moveToFront(Right, historyItems, -1)
+		if history[0].Direction != Right {
+			t.Errorf("history[0].Direction = %v, want Right", history[0].Direction)
+		}
+	})
+
+	// fmt.Println(len(historyItems))
+	// fmt.Println(history)
 }
 
 func Test_Move(t *testing.T) {
@@ -60,10 +96,7 @@ func Test_Move(t *testing.T) {
 		Species: "tiger",
 	}
 
-	controller := Controller{
-		DayCamera:   DayCamera{},
-		NightCamera: NightCamera{},
-	}
+	controller := NewController()
 
 	history, err := controller.Move(tiger, direction, nil)
 	if err != nil {
@@ -83,16 +116,14 @@ func Test_Move(t *testing.T) {
 func TestDayCamera_DetectMovement(t *testing.T) {
 	direction := Left
 
-	controller := Controller{
-		DayCamera: DayCamera{},
-	}
+	controller := NewController()
 
 	tiger := animal.Animal{
 		ID:      1,
 		Species: "tiger",
 	}
 
-	history, err := controller.DayCamera.DetectMovement(direction, nil, tiger.ID)
+	history, err := controller.dayCamera.DetectMovement(direction, nil, tiger.ID)
 	if err != nil {
 		t.Fatalf("Unexpected error: got=%v, but want=<nil>", err)
 	}
@@ -110,16 +141,14 @@ func TestDayCamera_DetectMovement(t *testing.T) {
 func TestNightCamera_DetectMovement(t *testing.T) {
 	direction := Bottom
 
-	controller := Controller{
-		NightCamera: NightCamera{},
-	}
+	controller := NewController()
 
 	bear := animal.Animal{
 		ID:      2,
 		Species: "bear",
 	}
 
-	history, err := controller.NightCamera.DetectMovement(direction, nil, bear.ID)
+	history, err := controller.nightCamera.DetectMovement(direction, nil, bear.ID)
 	if err != nil {
 		t.Fatalf("Unexpected error: got=%v, but want=<nil>", err)
 	}

@@ -17,7 +17,7 @@ const (
 )
 
 type HistoryItem struct {
-	Time      time.Time
+	CreatedAt time.Time
 	Direction Direction
 	ID        int
 }
@@ -52,15 +52,21 @@ func (n *NightCamera) SaveToServer(historyItems []HistoryItem) error {
 }
 
 type Controller struct {
-	DayCamera   DayCamera
-	NightCamera NightCamera
+	dayCamera   DayCamera
+	nightCamera NightCamera
+}
+
+func NewController() *Controller {
+	return &Controller{
+		dayCamera:   DayCamera{},
+		nightCamera: NightCamera{},
+	}
 }
 
 func (c *Controller) Move(animal animal.Animal, direction Direction, historyItems []HistoryItem) ([]HistoryItem, error) {
-	var camera Camera
-	camera = &c.NightCamera
+	camera := Camera(&c.nightCamera)
 	if animal.Species == "tiger" {
-		camera = &c.DayCamera
+		camera = Camera(&c.dayCamera)
 	}
 	return camera.DetectMovement(direction, historyItems, animal.ID)
 }
@@ -81,7 +87,7 @@ func moveToFront(direction Direction, historyItems []HistoryItem, animalID int) 
 		}
 	}
 	historyItems = append(historyItems, HistoryItem{
-		Time:      time.Now(),
+		CreatedAt: time.Now(),
 		Direction: prev,
 		ID:        animalID,
 	},
