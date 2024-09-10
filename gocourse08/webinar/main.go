@@ -14,31 +14,31 @@ package main
 
 import "fmt"
 
-func PtrOf[T int | float64](v T) *T {
+func PtrOf[T any](v T) *T {
 	return &v
 }
 
-func FindIn[T comparable](sl []T, find T) int {
-	for i, v := range sl {
-		if v == find {
+func FindIn[T comparable](s []T, target T) int {
+	for i, v := range s {
+		if v == target {
 			return i
 		}
 	}
 	return -1
 }
 
-func Unique[T comparable](sl []T) []T {
-	array := make(map[T]struct{})
-	for _, v := range sl {
-		array[v] = struct{}{}
+func Unique[T comparable](s []T) []T {
+	set := make(map[T]struct{})
+	for _, v := range s {
+		set[v] = struct{}{}
 	}
-	uniqueSlice := make([]T, 0, len(array))
+	unique := make([]T, 0, len(set))
 
-	for key := range array {
-		uniqueSlice = append(uniqueSlice, key)
+	for key := range set {
+		unique = append(unique, key)
 	}
 
-	return uniqueSlice
+	return unique
 }
 
 func main() {
