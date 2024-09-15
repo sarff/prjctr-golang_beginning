@@ -1,7 +1,5 @@
 package animal
 
-import "math/rand/v2"
-
 type AnimalType string
 
 const (
@@ -10,43 +8,42 @@ const (
 	Lion  AnimalType = "lion"
 )
 
-type Animal interface {
-	Typify() string
-	RecordBreathing(breathingData float64)
-	RecordSound(soundData float64)
-}
+//type Animal interface {
+//	Typify() string
+//	RecordBreathing(breathingData float64)
+//	RecordSound(soundData float64)
+//}
 
 type DataAnimal[T float64] struct {
 	AnimalType  string
 	Pulse       int
 	Temperature float64
-	Breathing   []T
-	Sounding    []T
+	Breaths     []T
+	Sounds      []T
 }
 
-func NewAnimal() DataAnimal[float64] {
-	animals := [...]AnimalType{Bear, Tiger, Lion}
+func New(animalPulse int, animalTemperature float64, animalType AnimalType) DataAnimal[float64] {
 	return DataAnimal[float64]{
-		AnimalType:  string(animals[rand.IntN(len(animals))]),
-		Pulse:       rand.IntN(100),
-		Temperature: rand.Float64(),
-		Breathing:   []float64{},
-		Sounding:    []float64{},
+		AnimalType:  string(animalType),
+		Pulse:       animalPulse,
+		Temperature: animalTemperature,
+		Breaths:     []float64{},
+		Sounds:      []float64{},
 	}
 }
 
 func (a *DataAnimal[T]) Typify() string {
 	// simulation of animal detection
-	if a.Breathing != nil && a.Sounding != nil {
+	if a.Breaths != nil && a.Sounds != nil {
 		return a.AnimalType
 	}
 	return "unknown animal type"
 }
 
 func (a *DataAnimal[T]) RecordBreathing(breathingData T) {
-	a.Breathing = append(a.Breathing, breathingData)
+	a.Breaths = append(a.Breaths, breathingData)
 }
 
 func (a *DataAnimal[T]) RecordSound(soundData T) {
-	a.Sounding = append(a.Sounding, soundData)
+	a.Sounds = append(a.Sounds, soundData)
 }

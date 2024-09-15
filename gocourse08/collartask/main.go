@@ -13,7 +13,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand/v2"
 
 	"github.com/sarff/prjctr-golang_beginning/gocourse08/collartask/collar"
@@ -22,18 +21,10 @@ import (
 )
 
 func main() {
-	newAnimal := animal.NewAnimal()
-	fmt.Println("The collar is initialized to: ", newAnimal.Typify())
+	tiger := animal.New(rand.IntN(100), rand.Float64(), animal.Tiger)
 	collarDevice := collar.NewCollar()
+	collarDevice.WearCollar(tiger)
 
-	for range 20 {
-		collarDevice.SetStrategy(&collar.GprsOn{})
-		if rand.IntN(2) == 1 {
-			collarDevice.SetStrategy(&collar.GprsOff{})
-		}
-		newAnimal.RecordBreathing(rand.Float64() * 100)
-		newAnimal.RecordSound(rand.Float64() * 100)
-		go collarDevice.ProcessData()
-		collarDevice.Save(newAnimal)
-	}
+	bear := animal.New(rand.IntN(100), rand.Float64(), animal.Bear)
+	collarDevice.WearCollar(bear)
 }

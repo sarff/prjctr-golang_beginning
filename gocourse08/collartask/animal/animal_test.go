@@ -1,6 +1,7 @@
 package animal
 
 import (
+	"math/rand/v2"
 	"reflect"
 	"testing"
 )
@@ -12,7 +13,7 @@ func TestNewAnimal(t *testing.T) {
 		"lion":  true,
 	}
 
-	animal := NewAnimal()
+	animal := New(rand.IntN(100), rand.Float64(), Tiger)
 
 	if !validAnimals[animal.AnimalType] {
 		t.Errorf("Expected AnimalType to be one of bear, tiger, or lion, but got %v", animal.AnimalType)
@@ -24,7 +25,7 @@ func TestDataAnimal_RecordBreathing(t *testing.T) {
 		AnimalType:  "lion",
 		Pulse:       100,
 		Temperature: 39,
-		Breathing:   []float64{},
+		Breaths:     []float64{},
 	}
 
 	breathData := 73.3
@@ -32,8 +33,8 @@ func TestDataAnimal_RecordBreathing(t *testing.T) {
 	animalData.RecordBreathing(breathData)
 
 	wantData := []float64{breathData}
-	if !reflect.DeepEqual(animalData.Breathing, wantData) {
-		t.Errorf("DataAnimal.RecordBreathing() = %v, want %v", animalData.Breathing, wantData)
+	if !reflect.DeepEqual(animalData.Breaths, wantData) {
+		t.Errorf("DataAnimal.RecordBreathing() = %v, want %v", animalData.Breaths, wantData)
 	}
 }
 
@@ -42,7 +43,7 @@ func TestDataAnimal_RecordAnimal(t *testing.T) {
 		AnimalType:  "lion",
 		Pulse:       100,
 		Temperature: 39,
-		Sounding:    []float64{},
+		Sounds:      []float64{},
 	}
 
 	soundData := 53.3
@@ -50,8 +51,8 @@ func TestDataAnimal_RecordAnimal(t *testing.T) {
 	animalData.RecordSound(soundData)
 
 	wantData := []float64{soundData}
-	if !reflect.DeepEqual(animalData.Sounding, wantData) {
-		t.Errorf("DataAnimal.RecordSound() = %v, want %v", animalData.Sounding, wantData)
+	if !reflect.DeepEqual(animalData.Sounds, wantData) {
+		t.Errorf("DataAnimal.RecordSound() = %v, want %v", animalData.Sounds, wantData)
 	}
 }
 
@@ -62,7 +63,7 @@ func TestDataAnimal_Typify(t *testing.T) {
 		"lion":  true,
 	}
 
-	animal := NewAnimal()
+	animal := New(rand.IntN(100), rand.Float64(), Lion)
 	tapify := animal.Typify()
 	if !validAnimals[tapify] {
 		t.Errorf("Expected AnimalType to be one of bear, tiger, or lion, but got %v", tapify)
