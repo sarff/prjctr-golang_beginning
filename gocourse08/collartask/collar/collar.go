@@ -72,12 +72,10 @@ func (c *Collar) WearCollar(animalData animal.DataAnimal[float64]) {
 				c.SetStrategy(&GprsOff{})
 			}
 
-			// Надсилаємо дані у канал
 			c.dataChan <- animalData
 		}
 	}()
 
-	// Запуск обробки даних у окремій горутині
 	c.ProcessData()
 	wg.Wait()
 }
