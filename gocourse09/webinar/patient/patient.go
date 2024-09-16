@@ -1,5 +1,7 @@
 package patient
 
+import "math/rand/v2"
+
 type ConditionPatient string
 
 const (
@@ -17,5 +19,7 @@ type CheckerPatient interface {
 }
 
 func (p *Patient) CheckCondition() ConditionPatient {
-	return ConditionGood
+	conditions := [...]ConditionPatient{ConditionCritical, ConditionNormal, ConditionGood}
+	randConditions := conditions[rand.IntN(len(conditions))]
+	return randConditions
 }
