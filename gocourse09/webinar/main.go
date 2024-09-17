@@ -11,11 +11,6 @@ import (
 	"github.com/sarff/prjctr-golang_beginning/gocourse09/webinar/patient"
 )
 
-// Для PR descr
-// Створюємо обʼєкт patient1 (не можемо назвати patient так як є імпортований модуль)
-// Обʼєкт контроль ліків drugControl
-// Обʼєкт крапильниці dropperForPatient (приймає patient1 і drugControl)
-// Далі функція React() - яка змішує потрібні ліки
 func main() {
 	patient1 := &patient.Patient{}
 	drugControl := &drug.Drug{}
@@ -23,6 +18,6 @@ func main() {
 		CheckerPatient: patient1,
 		ControllerDrug: drugControl,
 	}
-	// TODO: додат виведення в консоль опис... який пацієнт, який стан
+
 	dropperForPatient.React()
 }

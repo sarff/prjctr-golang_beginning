@@ -6,6 +6,7 @@ const (
 	Bear  Type = "Bear"
 	Cow   Type = "Cow"
 	Tiger Type = "Tiger"
+	Panda Type = "Panda"
 )
 
 type Animal struct {

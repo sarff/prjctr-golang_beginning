@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 
-	"smartfeeder/activitymonitor"
-	"smartfeeder/feeder"
-	"smartfeeder/zone"
+	"github.com/sarff/prjctr-golang_beginning/gocourse09/smartfeeder/animal"
+	"github.com/sarff/prjctr-golang_beginning/gocourse09/smartfeeder/feeder"
+	"github.com/sarff/prjctr-golang_beginning/gocourse09/smartfeeder/zone"
 )
 
 /*
@@ -20,17 +21,22 @@ import (
 Притримуватися SOLID. Написати модульні тести. Можна використовувати горутини та генеріки.
 */
 
-// TODO: Для аналізатора годівниці заюзати стратегію - типу залежно від тварини який корм, та заюзати другу
-//  *не пам'ятаю як називається, від кількості тварин і віку (молода чи доросла) - кількість корму
-
 func main() {
-	feederMain := &feeder.Feeder{}
-	zoneSetUp := &zone.Zone{}
-	monitor := &activitymonitor.ActivityMonitor{
-		ZoneCheck:                 zoneSetUp,
-		DistributionAnimalsInZone: feederMain,
+	// initial state of storage
+	foodStock := map[feeder.TypeFood]int{
+		feeder.Berries:     rand.IntN(20),
+		feeder.Grass:       rand.IntN(25),
+		feeder.Meat:        rand.IntN(15),
+		feeder.GeneralFooD: rand.IntN(45),
 	}
 
-	monitor.FeedDelivery()
-	fmt.Println(zoneSetUp)
+	feederMain := &feeder.Feeder{
+		FoodStock: foodStock,
+	}
+
+	zoneSetUp := zone.Zone{AnimalsInZone: make([]animal.Animal, 0)}.CheckZone()
+
+	fmt.Printf("The following animals are near the feeder: %v\n", zoneSetUp.AnimalsInZone)
+
+	feederMain.FeedAnimals(zoneSetUp.AnimalsInZone)
 }

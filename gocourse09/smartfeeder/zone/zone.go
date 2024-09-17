@@ -1,11 +1,22 @@
 package zone
 
+import "github.com/sarff/prjctr-golang_beginning/gocourse09/smartfeeder/animal"
+
 type Zone struct {
-	ZoneChecker ZoneChecker
+	AnimalsInZone []animal.Animal
 }
 
-type ZoneChecker interface {
+type AnimalsInZone interface {
 	CheckZone()
 }
 
-func (z Zone) CheckZone() {}
+func (z Zone) CheckZone() *Zone {
+	animalsInZone := []animal.Animal{
+		{Type: animal.Tiger, Count: 3},
+		{Type: animal.Cow, Count: 2},
+		{Type: animal.Bear, Count: 2},
+		{Type: animal.Panda, Count: 22},
+	}
+	z.AnimalsInZone = append(z.AnimalsInZone, animalsInZone...)
+	return &z
+}

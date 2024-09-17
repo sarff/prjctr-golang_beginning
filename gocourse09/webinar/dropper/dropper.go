@@ -19,6 +19,7 @@ type Reacter interface {
 
 func (d *Dropper) React() {
 	condition := d.CheckerPatient.CheckCondition()
+	fmt.Printf("Patient have %s condition. Therefore, we add/mix medications according to the patient's condition:\n", condition)
 	switch condition {
 	case patient.ConditionGood:
 		d.ControllerDrug.AddDrug("Water", 1.5)
