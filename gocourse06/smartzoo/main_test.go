@@ -17,37 +17,31 @@ func TestControlCondition(t *testing.T) {
 	wg := new(sync.WaitGroup)
 	log := loggerNew(logFile)
 
-	wg.Add(1)
-
 	animal := &Animal{
 		ID:     1,
 		Health: 25, // Рівень здоров'я нижче 30
 		Hunger: 25, // Рівень голоду нижче 30
 		Mood:   25, // Настрій нижче 30
 	}
-
+	wg.Add(1)
 	go controlCondition(animalChan, wg, log)
 	animalChan <- animal
 
 	wg.Wait()
 	close(animalChan)
 
-	err = logFile.Close()
-	if err != nil {
-		return
-	}
+	defer logFile.Close()
 
 	content, err := os.ReadFile(logFile.Name())
 	if err != nil {
 		t.Fatalf("Failed to read testLog file: %v", err)
 	}
-
 	logOutput := string(content)
 
 	wantMessages := []string{
-		"Animal with ID 1 - needs help",
-		"Animal with ID 1 - needs to be fed",
-		"Animal with ID 1 - needs to be released from the cage",
+		"\"msg\":\"Animal needs help\",\"animalId\":1",
+		"\"msg\":\"Animal needs to be fed\",\"animalId\":1",
+		"\"msg\":\"Animal - needs to be released from the cage\",\"animalId\":1",
 	}
 
 	for _, message := range wantMessages {
