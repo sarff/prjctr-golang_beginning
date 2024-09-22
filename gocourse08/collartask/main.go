@@ -21,10 +21,10 @@ import (
 )
 
 func main() {
-	tiger := animal.New(rand.IntN(100), rand.Float64(), animal.Tiger)
-	collarDevice := collar.NewCollar()
+	tiger := animal.New[float64](rand.IntN(100), rand.Float64(), animal.Tiger)
+	collarDevice := collar.NewCollar[float64]()
 	collarDevice.WearCollar(tiger)
 
-	bear := animal.New(rand.IntN(100), rand.Float64(), animal.Bear)
+	bear := animal.New[float64](rand.IntN(100), rand.Float64(), animal.Bear)
 	collarDevice.WearCollar(bear)
 }

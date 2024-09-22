@@ -3,41 +3,36 @@ package animal
 type AnimalType string
 
 const (
-	Bear  AnimalType = "bear"
-	Tiger AnimalType = "tiger"
-	Lion  AnimalType = "lion"
+	Bear    AnimalType = "bear"
+	Tiger   AnimalType = "tiger"
+	Lion    AnimalType = "lion"
+	Unknown AnimalType = "unknown"
 )
 
-//type Animal interface {
-//	Typify() string
-//	RecordBreathing(breathingData float64)
-//	RecordSound(soundData float64)
-//}
-
-type DataAnimal[T float64] struct {
-	AnimalType  string
+type DataAnimal[T float64 | float32] struct {
+	AnimalType  AnimalType
 	Pulse       int
 	Temperature float64
 	Breaths     []T
 	Sounds      []T
 }
 
-func New(animalPulse int, animalTemperature float64, animalType AnimalType) DataAnimal[float64] {
-	return DataAnimal[float64]{
-		AnimalType:  string(animalType),
-		Pulse:       animalPulse,
-		Temperature: animalTemperature,
-		Breaths:     []float64{},
-		Sounds:      []float64{},
+func New[T float64 | float32](pulse int, temperature float64, animalType AnimalType) DataAnimal[T] {
+	return DataAnimal[T]{
+		AnimalType:  animalType,
+		Pulse:       pulse,
+		Temperature: temperature,
+		Breaths:     []T{},
+		Sounds:      []T{},
 	}
 }
 
-func (a *DataAnimal[T]) Typify() string {
+func (a *DataAnimal[T]) Typify() AnimalType {
 	// simulation of animal detection
 	if a.Breaths != nil && a.Sounds != nil {
 		return a.AnimalType
 	}
-	return "unknown animal type"
+	return Unknown
 }
 
 func (a *DataAnimal[T]) RecordBreathing(breathingData T) {

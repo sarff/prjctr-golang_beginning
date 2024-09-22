@@ -13,9 +13,9 @@ func TestNewAnimal(t *testing.T) {
 		"lion":  true,
 	}
 
-	animal := New(rand.IntN(100), rand.Float64(), Tiger)
+	animal := New[float64](rand.IntN(100), rand.Float64(), Tiger)
 
-	if !validAnimals[animal.AnimalType] {
+	if !validAnimals[string(animal.AnimalType)] {
 		t.Errorf("Expected AnimalType to be one of bear, tiger, or lion, but got %v", animal.AnimalType)
 	}
 }
@@ -63,9 +63,9 @@ func TestDataAnimal_Typify(t *testing.T) {
 		"lion":  true,
 	}
 
-	animal := New(rand.IntN(100), rand.Float64(), Lion)
+	animal := New[float64](rand.IntN(100), rand.Float64(), Lion)
 	tapify := animal.Typify()
-	if !validAnimals[tapify] {
+	if !validAnimals[string(tapify)] {
 		t.Errorf("Expected AnimalType to be one of bear, tiger, or lion, but got %v", tapify)
 	}
 }
