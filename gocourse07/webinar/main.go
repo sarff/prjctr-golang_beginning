@@ -11,13 +11,15 @@ import (
 	"time"
 )
 
+type signal int
+
 const (
-	signalSit = iota
+	signalSit signal = iota
 	signalDance
 )
 
-func dancing(d int) {
-	switch d {
+func dancing(s signal) {
+	switch s {
 	case signalSit:
 		fmt.Println("I'm sitting now")
 	case signalDance:
@@ -26,18 +28,17 @@ func dancing(d int) {
 }
 
 func main() {
-	// wg := new(sync.WaitGroup)
-	signals := [10]int{1, 1, 0, 0, 1, 1, 1, 1, 0, 0} // 1 - танцюємо, 0 сидимо
-	legsChan := make(chan int)
+	signals := [10]signal{signalSit, signalDance, signalSit, signalSit, signalDance, signalDance, signalDance, signalDance, signalSit, signalSit}
+	legsChan := make(chan signal)
 
-	go func(signals [10]int) {
-		for _, signal := range signals {
-			legsChan <- signal
+	go func() {
+		for _, sig := range signals {
+			legsChan <- sig
+			time.Sleep(1 * time.Second)
 		}
-	}(signals)
-
-	for i := 0; i < len(signals); i++ {
-		dancing(<-legsChan)
-		time.Sleep(1 * time.Second)
+		close(legsChan)
+	}()
+	for s := range legsChan {
+		dancing(s)
 	}
 }

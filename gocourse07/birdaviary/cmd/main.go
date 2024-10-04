@@ -25,18 +25,18 @@ func main() {
 	db := storage.NewStorage(log)
 	cs := centralsystem.NewCentralSystem(db, log)
 
-	tempSensor := sensor.NewTemperatureSensor(cs, log)
-	humiditySensor := sensor.NewHumiditySensor(cs, log)
-	brightnessSensor := sensor.NewBrightnessSensor(cs, log)
+	var tempSensor, humiditySensor, brightnessSensor sensor.Sensor
 
-	for range 24 {
-		wg.Add(1)
-		go tempSensor.Start(wg)
-		wg.Add(1)
-		go humiditySensor.Start(wg)
-		wg.Add(1)
-		go brightnessSensor.Start(wg)
-	}
+	tempSensor = sensor.NewSensor(cs, log, "TemperatureSensor")
+	humiditySensor = sensor.NewSensor(cs, log, "HumiditySensor")
+	brightnessSensor = sensor.NewSensor(cs, log, "BrightnessSensor")
+
+	wg.Add(1)
+	go tempSensor.Start(wg)
+	wg.Add(1)
+	go humiditySensor.Start(wg)
+	wg.Add(1)
+	go brightnessSensor.Start(wg)
 
 	wg.Add(1)
 	go cs.Start(wg)

@@ -10,8 +10,8 @@ import (
 )
 
 type Sensor interface {
-	Start()
-	Stop()
+	Start(*sync.WaitGroup)
+	Stop(*sync.WaitGroup)
 }
 
 type MainSensor struct {
@@ -21,16 +21,23 @@ type MainSensor struct {
 }
 
 func (s *MainSensor) Start(wg *sync.WaitGroup) {
-	defer wg.Done()
+	defer s.Stop(wg)
 	s.log.Info("Starting sensor ", "sensor", s.name)
-	data := s.GenerateSensorData()
-	s.cs.SaveData(s.name, data)
+	for range 10 {
+		data := s.generateSensorData()
+		s.cs.SaveData(s.name, data)
+	}
 }
 
-func (s *MainSensor) Stop() {
-	s.log.Info("Stopping sensor ", "sensor", s.name)
+func (s *MainSensor) Stop(wg *sync.WaitGroup) {
+	defer wg.Done()
+	s.log.Info("Stopping sensor", "sensor", s.name)
 }
 
-func (s *MainSensor) GenerateSensorData() int {
+func (s *MainSensor) generateSensorData() int {
 	return rand.IntN(100)
+}
+
+func NewSensor(cs *centralsystem.CentralSystem, log *logger.Logger, name string) *MainSensor {
+	return &MainSensor{name, cs, log}
 }
