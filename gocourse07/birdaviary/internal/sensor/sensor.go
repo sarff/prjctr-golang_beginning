@@ -31,7 +31,7 @@ func (s *MainSensor) Start(wg *sync.WaitGroup) {
 
 func (s *MainSensor) Stop(wg *sync.WaitGroup) {
 	defer wg.Done()
-	s.log.Info("Stopping sensor", "sensor", s.name)
+	s.log.Info("Stopping sensor ", "sensor", s.name)
 }
 
 func (s *MainSensor) generateSensorData() int {
