@@ -24,6 +24,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log/slog"
 	"math/rand/v2"
 	"os"
@@ -106,7 +107,7 @@ func controlCondition(animalChan <-chan *Animal, wg *sync.WaitGroup, log *slog.L
 	}
 }
 
-func controlEnclosure(enclosureChan chan *Enclosure, isOpen bool, wg *sync.WaitGroup, log *slog.Logger) {
+func controlEnclosure(enclosureChan <-chan *Enclosure, isOpen bool, wg *sync.WaitGroup, log *slog.Logger) {
 	defer wg.Done()
 	if enclosure, ok := <-enclosureChan; ok {
 		enclosure.IsOpen = isOpen
@@ -129,7 +130,7 @@ func controlFeeder(feedChan chan *Feeder, wg *sync.WaitGroup, log *slog.Logger) 
 	}
 }
 
-func loggerNew(writer *os.File) *slog.Logger {
+func loggerNew(writer io.Writer) *slog.Logger {
 	logger := slog.New(slog.NewJSONHandler(writer, nil))
 	slog.SetDefault(logger)
 	return logger

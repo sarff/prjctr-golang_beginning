@@ -1,21 +1,18 @@
 package main
 
 import (
-	"os"
+	"bytes"
 	"strings"
 	"sync"
 	"testing"
 )
 
 func TestControlCondition(t *testing.T) {
-	logFile, err := os.CreateTemp(t.TempDir(), "testLog-*.log")
-	if err != nil {
-		t.Fatalf("Failed to create testLog file: %v", err)
-	}
+	actualLog := &bytes.Buffer{}
 
 	animalChan := make(chan *Animal, 1)
 	wg := new(sync.WaitGroup)
-	log := loggerNew(logFile)
+	log := loggerNew(actualLog)
 
 	animal := &Animal{
 		ID:     1,
@@ -30,14 +27,6 @@ func TestControlCondition(t *testing.T) {
 	wg.Wait()
 	close(animalChan)
 
-	defer logFile.Close()
-
-	content, err := os.ReadFile(logFile.Name())
-	if err != nil {
-		t.Fatalf("Failed to read testLog file: %v", err)
-	}
-	logOutput := string(content)
-
 	wantMessages := []string{
 		"\"msg\":\"Animal needs help\",\"animalId\":1",
 		"\"msg\":\"Animal needs to be fed\",\"animalId\":1",
@@ -45,7 +34,7 @@ func TestControlCondition(t *testing.T) {
 	}
 
 	for _, message := range wantMessages {
-		if !strings.Contains(logOutput, message) {
+		if !strings.Contains(actualLog.String(), message) {
 			t.Errorf("Wanted testLog message '%s' not found", message)
 		}
 	}
