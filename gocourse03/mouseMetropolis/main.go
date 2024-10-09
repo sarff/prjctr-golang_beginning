@@ -14,8 +14,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"time"
-
-	"github.com/brianvoe/gofakeit/v7"
 )
 
 type (
@@ -52,13 +50,15 @@ const (
 	sectorE Sector = "sectorE"
 )
 
+// this constructor randomly fills the typeRodent
 func newRodent(id int) *Rodent {
 	typeRodent := mouse
 
 	if rand.N(2) == 1 {
 		typeRodent = rat
 	}
-	return &Rodent{ID: id + 1, Type: typeRodent, History: nil}
+	// make +1 because the ID cannot be 0
+	return &Rodent{ID: id, Type: typeRodent, History: nil}
 }
 
 func (r *Rodent) addMovement(movement Movement) {
@@ -66,16 +66,15 @@ func (r *Rodent) addMovement(movement Movement) {
 }
 
 func (m *MiceRoom) delMovement(t time.Time) bool {
-	delStatus := false
 	for _, rodent := range m.Rodents {
 		for i, m := range rodent.History {
 			if m.Time == t {
 				rodent.History = append(rodent.History[:i], rodent.History[i+1:]...)
-				delStatus = true
+				return true
 			}
 		}
 	}
-	return delStatus
+	return false
 }
 
 func (m *MiceRoom) findHistory(id int) map[time.Time][]FromTo {
@@ -97,9 +96,8 @@ func (r *Rodent) moveRodent(count int) {
 	}
 
 	for i := 0; i < count; i++ {
-		if r.History == nil {
-			from = sectorA
-		} else {
+		from = sectorA
+		if r.History != nil {
 			from = r.History[len(r.History)-1].FromTo[1]
 		}
 		to = randSectorExcluding(from)
@@ -117,10 +115,10 @@ func (r *Rodent) moveRodent(count int) {
 }
 
 func randSectorExcluding(exclude Sector) Sector {
-	fake := gofakeit.New(0)
-	randSector := fake.RandomString([]string{string(sectorA), string(sectorB), string(sectorC), string(sectorD)})
-	if Sector(randSector) != exclude {
-		return Sector(randSector)
+	sectors := [...]Sector{sectorA, sectorB, sectorC, sectorD}
+	randSector := sectors[rand.IntN(len(sectors))]
+	if randSector != exclude {
+		return randSector
 	}
 	return sectorE
 }
@@ -144,7 +142,7 @@ func (m *MiceRoom) finishSector(ID int) Sector {
 }
 
 func (m *MiceRoom) returnRodentInSector(time time.Time, targetSector Sector) []int {
-	report := make([]int, 0)
+	var report []int
 	for _, rodent := range m.Rodents {
 		for _, history := range rodent.History {
 			if history.Time == time && targetSector == history.FromTo[0] {
@@ -167,9 +165,9 @@ func main() {
 	// find history by ID = 4
 	rodentID := 4
 	history := miceRoom.findHistory(rodentID)
-	fmt.Println("Move history for ID :", rodentID)
+	fmt.Printf("Move history for ID %d :\n", rodentID)
 	for k, v := range history {
-		fmt.Printf("%s : %v \n", k, v)
+		fmt.Printf("-->   %s : %v \n", k, v)
 	}
 
 	// where the rodent was at the beginning of the day and where it stopped at the end of the day
