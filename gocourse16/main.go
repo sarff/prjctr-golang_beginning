@@ -10,6 +10,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -18,7 +19,7 @@ import (
 
 var regexPhone = regexp.MustCompile(`[^\d]`)
 
-func TrimNumber(s string) string {
+func FormatNumber(s string) (string, error) {
 	cleanNumber := regexPhone.ReplaceAllString(s, "")
 	if strings.HasPrefix(cleanNumber, "0") {
 		cleanNumber = "380" + cleanNumber[1:]
@@ -26,28 +27,37 @@ func TrimNumber(s string) string {
 		cleanNumber = strings.TrimPrefix(cleanNumber, "+")
 	}
 	if len(cleanNumber) != 12 {
-		return "Invalid phone number"
+		return "", errors.New("invalid phone number")
 	}
 
 	formattedPhone := fmt.Sprintf("(%s) %s-%s-%s", cleanNumber[2:5], cleanNumber[5:7], cleanNumber[7:9], cleanNumber[9:])
 
-	return formattedPhone
+	return formattedPhone, nil
 }
 
 func main() {
-	file, err := os.Open("gocourse16/tn.txt")
+	file, err := os.Open("tn.txt")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
 	}
 	defer file.Close()
-	outputFile, err := os.Create("gocourse16/phones_normalized.txt")
+	outputFile, err := os.Create("phones_normalized.txt")
 	if err != nil {
 		fmt.Println("Error creating output file:", err)
 		return
 	}
 	defer outputFile.Close()
 
+	err = PhoneNormalize(file, outputFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("Phone numbers normalized and saved to phones_normalized.txt")
+}
+
+func PhoneNormalize(file, outputFile *os.File) error {
 	scanner := bufio.NewScanner(file)
 	writer := bufio.NewWriter(outputFile)
 
@@ -59,23 +69,21 @@ func main() {
 		}
 
 		name := parts[0]
-		phone := TrimNumber(parts[1])
+		phone, _ := FormatNumber(parts[1])
 
 		_, err := writer.WriteString(fmt.Sprintf("%s - %s\n", name, phone))
 		if err != nil {
-			fmt.Println("Error writing to file:", err)
-			return
+			return err
 		}
 
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
-		return
+		return err
 	}
 
-	err = writer.Flush()
+	err := writer.Flush()
 	if err != nil {
-		fmt.Println("Error writing to file:", err)
+		return err
 	}
-	fmt.Println("Phone numbers normalized and saved to phones_normalized.txt")
+	return nil
 }
