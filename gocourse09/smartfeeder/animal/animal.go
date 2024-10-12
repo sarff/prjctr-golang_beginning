@@ -11,5 +11,5 @@ const (
 
 type Animal struct {
 	Type  Type
-	Count int
+	Count int // the number of animals of one type
 }

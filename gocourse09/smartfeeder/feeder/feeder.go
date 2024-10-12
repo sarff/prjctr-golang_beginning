@@ -12,7 +12,7 @@ const (
 	Grass       TypeFood = "Grass"
 	Meat        TypeFood = "Meat"
 	Berries     TypeFood = "Berries"
-	GeneralFooD TypeFood = "General Food"
+	GeneralFood TypeFood = "General Food"
 )
 
 type Feeder struct {
@@ -33,7 +33,7 @@ func (f *Feeder) FoodType(animalType animal.Type) TypeFood {
 	case animal.Tiger:
 		return Meat
 	default:
-		return GeneralFooD
+		return GeneralFood
 	}
 }
 
@@ -60,8 +60,8 @@ func (f *Feeder) distributionFood(typeFood TypeFood, amount int) {
 
 func (f *Feeder) FeedAnimals(animals []animal.Animal) {
 	for _, beast := range animals {
-		foodType := f.FoodType(beast.Type)   // Strategy
-		foodNeeded := f.calculateFood(beast) // Decorator
+		foodType := f.FoodType(beast.Type)
+		foodNeeded := f.calculateFood(beast)
 
 		if foodAvailable, ok := f.FoodStock[foodType]; ok && foodAvailable >= foodNeeded {
 			f.FoodStock[foodType] -= foodNeeded

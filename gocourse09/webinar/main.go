@@ -12,10 +12,10 @@ import (
 )
 
 func main() {
-	patient1 := &patient.Patient{}
+	patient := &patient.Patient{}
 	drugControl := &drug.Drug{}
 	dropperForPatient := &dropper.Dropper{
-		CheckerPatient: patient1,
+		CheckerPatient: patient,
 		ControllerDrug: drugControl,
 	}
 

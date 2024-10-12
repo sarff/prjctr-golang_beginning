@@ -30,8 +30,8 @@ func TestZone_CheckZone(t *testing.T) {
 		},
 	}
 
-	getZone := newZone.CheckZone()
+	getZone := newZone.AddAnimals()
 	if !reflect.DeepEqual(wantZone, getZone) {
-		t.Errorf("CheckZone returned %+v, want %+v", getZone, wantZone)
+		t.Errorf("AddAnimals returned %+v, want %+v", getZone, wantZone)
 	}
 }

@@ -27,16 +27,17 @@ func main() {
 		feeder.Berries:     rand.IntN(20),
 		feeder.Grass:       rand.IntN(25),
 		feeder.Meat:        rand.IntN(15),
-		feeder.GeneralFooD: rand.IntN(45),
+		feeder.GeneralFood: rand.IntN(45),
 	}
 
 	feederMain := &feeder.Feeder{
 		FoodStock: foodStock,
 	}
 
-	zoneSetUp := zone.Zone{AnimalsInZone: make([]animal.Animal, 0)}.CheckZone()
+	zone := zone.Zone{AnimalsInZone: make([]animal.Animal, 0)}
+	zone.AddAnimals()
 
-	fmt.Printf("The following animals are near the feeder: %v\n", zoneSetUp.AnimalsInZone)
+	fmt.Printf("The following animals are near the feeder: %v\n", zone.AnimalsInZone)
 
-	feederMain.FeedAnimals(zoneSetUp.AnimalsInZone)
+	feederMain.FeedAnimals(zone.AnimalsInZone)
 }

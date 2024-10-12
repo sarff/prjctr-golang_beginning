@@ -11,7 +11,7 @@ func TestFeeder_FoodType(t *testing.T) {
 		Berries:     20,
 		Grass:       25,
 		Meat:        15,
-		GeneralFooD: 45,
+		GeneralFood: 45,
 	}
 
 	feederTest := &Feeder{
@@ -19,7 +19,7 @@ func TestFeeder_FoodType(t *testing.T) {
 	}
 
 	valid := map[animal.Type]TypeFood{
-		animal.Panda: GeneralFooD,
+		animal.Panda: GeneralFood,
 		animal.Cow:   Grass,
 		animal.Bear:  Berries,
 		animal.Tiger: Meat,

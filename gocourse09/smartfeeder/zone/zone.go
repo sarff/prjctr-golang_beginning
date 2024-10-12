@@ -10,7 +10,7 @@ type AnimalsInZone interface {
 	CheckZone()
 }
 
-func (z Zone) CheckZone() *Zone {
+func (z Zone) AddAnimals() *Zone {
 	animalsInZone := []animal.Animal{
 		{Type: animal.Tiger, Count: 3},
 		{Type: animal.Cow, Count: 2},
