@@ -1,7 +1,8 @@
 package main
 
 import (
-	"os"
+	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -35,44 +36,28 @@ func TestFormatNumber(t *testing.T) {
 }
 
 func TestPhoneNormalize(t *testing.T) {
-	tempDir := t.TempDir()
-	pathInputFile := tempDir + "/input.txt"
-	pathOutputFile := tempDir + "/output.txt"
+	input := strings.NewReader(`Zinadin Zidan - 050 123 45 67
+Roberto Carlos - 044-456-78-90
+Zinadin Zidan -`)
+	want := `Zinadin Zidan - (050) 12-34-567
+Roberto Carlos - (044) 45-67-890
+`
+	var buf bytes.Buffer
+	err := PhoneNormalize(input, &buf)
+	if err != nil {
+		t.Fatal("unexpected error:", err)
+	}
 
-	inputData := "Zinadin Zidan - 050 123 45 67\nRoberto Carlos - 044-456-78-90\n"
-	outputData := "Zinadin Zidan - (050) 12-34-567\nRoberto Carlos - (044) 45-67-890\n"
-	inputFile, err := os.Create(pathInputFile)
-	if err != nil {
-		t.Error(err)
+	got := buf.String()
+	if got != want {
+		t.Errorf("unexpected output:\n Want %q\nGot: %q", want, got)
 	}
-	_, err = inputFile.WriteString(inputData)
-	if err != nil {
-		t.Error(err)
-	}
-	err = inputFile.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer inputFile.Close()
-	outputFile, err := os.Create(pathOutputFile)
-	if err != nil {
-		t.Error(err)
-	}
-	defer outputFile.Close()
-	inputFile, err = os.Open(pathInputFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer inputFile.Close()
-	err = PhoneNormalize(inputFile, outputFile)
-	if err != nil {
-		t.Error(err)
-	}
-	outputRead, err := os.ReadFile(outputFile.Name())
-	if err != nil {
-		t.Error(err)
-	}
-	if outputData != string(outputRead) {
-		t.Errorf("unexpected output:\n Want %q\nGot: %q", outputData, string(outputRead))
-	}
+
+	test2Input := "Zinadin Zidan - "
+	t.Run(test2Input, func(t *testing.T) {
+		err = PhoneNormalize(strings.NewReader(test2Input), &buf)
+		if err == nil {
+			t.Errorf("expected error, got nil")
+		}
+	})
 }

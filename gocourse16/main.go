@@ -12,6 +12,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -52,14 +53,15 @@ func main() {
 	err = PhoneNormalize(file, outputFile)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("Phone numbers normalized and saved to phones_normalized.txt")
 }
 
-func PhoneNormalize(file, outputFile *os.File) error {
-	scanner := bufio.NewScanner(file)
-	writer := bufio.NewWriter(outputFile)
+func PhoneNormalize(in io.Reader, out io.Writer) error {
+	scanner := bufio.NewScanner(in)
+	writer := bufio.NewWriter(out)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -69,9 +71,12 @@ func PhoneNormalize(file, outputFile *os.File) error {
 		}
 
 		name := parts[0]
-		phone, _ := FormatNumber(parts[1])
+		phone, err := FormatNumber(parts[1])
+		if err != nil {
+			return err
+		}
 
-		_, err := writer.WriteString(fmt.Sprintf("%s - %s\n", name, phone))
+		_, err = writer.WriteString(fmt.Sprintf("%s - %s\n", name, phone))
 		if err != nil {
 			return err
 		}
