@@ -36,26 +36,29 @@ func TestFormatNumber(t *testing.T) {
 }
 
 func TestPhoneNormalize(t *testing.T) {
-	input := strings.NewReader(`Zinadin Zidan - 050 123 45 67
+	t.Run("valid input", func(t *testing.T) {
+		input := strings.NewReader(`Zinadin Zidan - 050 123 45 67
 Roberto Carlos - 044-456-78-90
 Zinadin Zidan -`)
-	want := `Zinadin Zidan - (050) 12-34-567
+		want := `Zinadin Zidan - (050) 12-34-567
 Roberto Carlos - (044) 45-67-890
 `
-	var buf bytes.Buffer
-	err := PhoneNormalize(input, &buf)
-	if err != nil {
-		t.Fatal("unexpected error:", err)
-	}
+		var buf bytes.Buffer
+		err := PhoneNormalize(input, &buf)
+		if err != nil {
+			t.Fatal("unexpected error:", err)
+		}
 
-	got := buf.String()
-	if got != want {
-		t.Errorf("unexpected output:\n Want %q\nGot: %q", want, got)
-	}
+		got := buf.String()
+		if got != want {
+			t.Errorf("unexpected output:\n Want %q\nGot: %q", want, got)
+		}
+	})
 
-	test2Input := "Zinadin Zidan - "
-	t.Run(test2Input, func(t *testing.T) {
-		err = PhoneNormalize(strings.NewReader(test2Input), &buf)
+	t.Run("invalid input", func(t *testing.T) {
+		var buf bytes.Buffer
+		test2Input := "Zinadin Zidan - "
+		err := PhoneNormalize(strings.NewReader(test2Input), &buf)
 		if err == nil {
 			t.Errorf("expected error, got nil")
 		}
